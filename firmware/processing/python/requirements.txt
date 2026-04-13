@@ -1,5 +1,0 @@
-opencv-contrib-python
-numpy
-Pillow
-imutils
-scipy
