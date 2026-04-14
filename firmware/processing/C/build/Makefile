@@ -1,4 +1,4 @@
-CC = arm-linux-gnueabihf-gcc
+CC = arm-linux-gnueabi-gcc
 # Force static linking for all libraries to avoid version mismatches
 LIBS = -lm -static
 # CFLAGS specifically tuned for Pi Zero W (ARMv6)
@@ -6,7 +6,7 @@ LIBS = -lm -static
 # -mno-unaligned-access: Prevents Segfaults on older ARM chips
 # -fno-pie: Disables position-independent code which often crashes at _start
 CFLAGS = -O3 -Wall -Wextra -marm -march=armv6kz -mtune=arm1176jzf-s \
-         -mfpu=vfp -mfloat-abi=hard -mno-unaligned-access -fno-pie
+         -mfpu=vfp -mfloat-abi=softfp -mno-unaligned-access -fno-pie
 
 # Linker flags to ensure a truly static, non-PIE binary
 LDFLAGS = -static -no-pie
