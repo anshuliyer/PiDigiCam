@@ -19,7 +19,7 @@ fi
 
 mkdir -p $PREBUILTS_DIR
 
-$CC -O3 -Wall -Wextra ../src/main.c ../src/cnn_inference.c ../src/cinematic_2000s.c ../src/washed_kodak.c ../src/golden_hour.c -lm -o $PREBUILTS_DIR/enhance
+$CC -O3 -Wall -Wextra ../src/main.c ../src/cnn_inference.c ../src/cinematic_2000s.c ../src/washed_kodak.c ../src/golden_hour.c ../src/kodak_35mm.c -lm -o $PREBUILTS_DIR/enhance
 
 echo "Build complete for $ARCH. Executable placed in: $PREBUILTS_DIR/enhance"
 echo "Run with: ./$PREBUILTS_DIR/enhance <input.jpg> <output.png>"
