@@ -2,7 +2,8 @@
 SRC_DIR = ../src
 TARGET_NAME = enhance
 SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/cnn_inference.c $(SRC_DIR)/cinematic_2000s.c \
-       $(SRC_DIR)/washed_kodak.c $(SRC_DIR)/golden_hour.c $(SRC_DIR)/kodak_35mm.c
+       $(SRC_DIR)/washed_kodak.c $(SRC_DIR)/golden_hour.c $(SRC_DIR)/kodak_35mm.c \
+       $(SRC_DIR)/default.c
 
 # --- 1. Pi Zero W (ARMv6) Config ---
 CC_W = arm-linux-gnueabihf-gcc
