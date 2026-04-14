@@ -15,14 +15,19 @@ else ifeq ($(ARCH), x86)
     CFLAGS += -m32
     PREBUILTS_DIR = ../prebuilts_x86
     TARGET = $(PREBUILTS_DIR)/enhance
+
+CC = arm-linux-gnueabihf-gcc
+# Added -static to LIBS to pack everything into one file
+LIBS = -lm -static 
+
 else ifeq ($(ARCH), w)
     CC = arm-linux-gnueabihf-gcc
-    # -marm: No Thumb instructions
-    # -march=armv6kz: Strict Pi Zero architecture
-    # -mno-unaligned-access: CRITICAL for Pi Zero W to prevent Segfaults
-    # -fno-stack-protector: Removes some complex start-up code that can fail on older ABIs
+    # -marm: Force 32-bit ARM instructions
+    # -march=armv6kz: Target the Pi Zero W specifically
+    # -mno-unaligned-access: Prevents the CPU from panicking on memory boundaries
+    # -static-libgcc: Ensures the math/helper libraries are embedded
     CFLAGS += -marm -march=armv6kz -mtune=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard \
-              -mno-unaligned-access -fno-stack-protector
+              -mno-unaligned-access -static-libgcc
     
     PREBUILTS_DIR = ../prebuilts_w
     TARGET = $(PREBUILTS_DIR)/enhance
