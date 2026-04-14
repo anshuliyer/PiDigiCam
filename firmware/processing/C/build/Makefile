@@ -1,56 +1,53 @@
-CC = arm-linux-gnueabihf-gcc
-# Force static linking for all libraries to avoid version mismatches
-LIBS = -lm -static
-# CFLAGS specifically tuned for Pi Zero W (ARMv6)
-# -marm: Use 32-bit ARM mode (required for Hard Float on ARMv6)
-# -mno-unaligned-access: Prevents Segfaults on older ARM chips
-# -fno-pie: Disables position-independent code which often crashes at _start
-CFLAGS = -O3 -Wall -Wextra -marm -march=armv6kz -mtune=arm1176jzf-s \
-         -mfpu=vfp -mfloat-abi=hard -mno-unaligned-access -fno-pie
+# --- Source and Project Config ---
+SRC_DIR = ../src
+TARGET_NAME = enhance
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/cnn_inference.c $(SRC_DIR)/cinematic_2000s.c \
+       $(SRC_DIR)/washed_kodak.c $(SRC_DIR)/golden_hour.c $(SRC_DIR)/kodak_35mm.c
 
-# Linker flags to ensure a truly static, non-PIE binary
+# --- 1. Pi Zero W (ARMv6) Config ---
+CC_W = arm-linux-gnueabihf-gcc
+DIR_W = ../prebuilts_w
+CFLAGS_W = -O3 -Wall -Wextra -marm -march=armv6kz -mtune=arm1176jzf-s \
+           -mfpu=vfp -mfloat-abi=hard -mno-unaligned-access -fno-pie
+
+# --- 2. Pi Zero 2W / CM4 / CM5 (ARMv8) Config ---
+CC_V8 = aarch64-linux-gnu-gcc
+DIR_V8 = ../prebuilts_v8
+# Optimized for Cortex-A53/A72/A76 cores
+CFLAGS_V8 = -O3 -Wall -Wextra -march=armv8-a -mtune=cortex-a53
+
+# --- 3. x86_64 (PC/Server) Config ---
+CC_X86 = gcc
+DIR_X86 = ../prebuilts_x86
+CFLAGS_X86 = -O3 -Wall -Wextra -march=native
+
+# --- Shared Linker Settings ---
+LIBS = -lm -static
 LDFLAGS = -static -no-pie
 
-PREBUILTS_DIR = ../prebuilts_w
-SRC_DIR = ../src
-TARGET = $(PREBUILTS_DIR)/enhance
+# --- Build Rules ---
 
-# Object files
-OBJS = enhance.o cnn_inference.o cinematic_2000s.o washed_kodak.o golden_hour.o kodak_35mm.o
+.PHONY: all w v8 x86 clean directories
 
-all: $(TARGET)
+all: w v8 x86
 
-$(TARGET): $(OBJS) | $(PREBUILTS_DIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
-	@echo "------------------------------------------------"
-	@echo "Build Complete. Checking binary type..."
-	@file $(TARGET)
-	@echo "------------------------------------------------"
+# Raspberry Pi Zero W Target
+w: directories
+	$(CC_W) $(CFLAGS_W) $(LDFLAGS) $(SRCS) -o $(DIR_W)/$(TARGET_NAME) $(LIBS)
+	@echo "Built Pi Zero W (ARMv6) binary."
 
-$(PREBUILTS_DIR):
-	mkdir -p $(PREBUILTS_DIR)
+# Raspberry Pi ARMv8 (Zero 2, 4, 5) Target
+v8: directories
+	$(CC_V8) $(CFLAGS_V8) $(LDFLAGS) $(SRCS) -o $(DIR_V8)/$(TARGET_NAME) $(LIBS)
+	@echo "Built ARMv8 (64-bit) binary."
 
-# Compilation rules
-enhance.o: $(SRC_DIR)/main.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# Local x86 Target
+x86: directories
+	$(CC_X86) $(CFLAGS_X86) $(LDFLAGS) $(SRCS) -o $(DIR_X86)/$(TARGET_NAME) $(LIBS)
+	@echo "Built x86_64 binary."
 
-cnn_inference.o: $(SRC_DIR)/cnn_inference.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-cinematic_2000s.o: $(SRC_DIR)/cinematic_2000s.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-washed_kodak.o: $(SRC_DIR)/washed_kodak.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-golden_hour.o: $(SRC_DIR)/golden_hour.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-kodak_35mm.o: $(SRC_DIR)/kodak_35mm.c
-	$(CC) $(CFLAGS) -c $< -o $@
+directories:
+	@mkdir -p $(DIR_W) $(DIR_V8) $(DIR_X86)
 
 clean:
-	rm -f *.o $(TARGET)
-
-# Quick command for building specifically for W
-w: clean all
+	rm -rf $(DIR_W)/$(TARGET_NAME) $(DIR_V8)/$(TARGET_NAME) $(DIR_X86)/$(TARGET_NAME)
