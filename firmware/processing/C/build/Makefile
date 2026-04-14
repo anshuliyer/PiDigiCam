@@ -17,9 +17,12 @@ else ifeq ($(ARCH), x86)
     TARGET = $(PREBUILTS_DIR)/enhance
 else ifeq ($(ARCH), w)
     CC = arm-linux-gnueabihf-gcc
-    
-    # Add -marm to the CFLAGS
-    CFLAGS += -marm -march=armv6kz -mtune=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard
+    # -marm: No Thumb instructions
+    # -march=armv6kz: Strict Pi Zero architecture
+    # -mno-unaligned-access: CRITICAL for Pi Zero W to prevent Segfaults
+    # -fno-stack-protector: Removes some complex start-up code that can fail on older ABIs
+    CFLAGS += -marm -march=armv6kz -mtune=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard \
+              -mno-unaligned-access -fno-stack-protector
     
     PREBUILTS_DIR = ../prebuilts_w
     TARGET = $(PREBUILTS_DIR)/enhance
