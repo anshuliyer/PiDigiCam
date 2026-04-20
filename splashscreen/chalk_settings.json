@@ -1,0 +1,36 @@
+{
+    "font": "Chalkboard.ttc",
+    "colors": {
+        "bg": [
+            0,
+            0,
+            0
+        ],
+        "light": [
+            235,
+            210,
+            255
+        ],
+        "dark": [
+            90,
+            45,
+            110
+        ],
+        "dotted": [
+            120,
+            120,
+            130
+        ]
+    },
+    "chalk_effect": {
+        "multi_stroke": 3,
+        "jitter_range": [
+            -1,
+            1
+        ]
+    },
+    "layout": {
+        "equation_pos": "bottom-left",
+        "elevation_px": 50
+    }
+}
