@@ -1,0 +1,177 @@
+:root {
+  --bg-black: #000000;
+  --light-mauve: #EBD2FF;
+  --dark-mauve: #5A2D6E;
+  --grey-dotted: #787882;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-black);
+  color: var(--light-mauve);
+  font-family: var(--font-sans);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Boot Screen */
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-black);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.boot-inner {
+  text-align: center;
+  animation: fadeIn 1s ease-out;
+}
+
+.boot-gif {
+  width: 320px;
+  height: auto;
+  border: 1px dashed var(--grey-dotted);
+  margin-bottom: 2rem;
+}
+
+.boot-text {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--grey-dotted);
+  letter-spacing: 0.2rem;
+}
+
+/* Main Grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 100vh;
+  width: 100vw;
+  gap: 1px;
+  background: var(--grey-dotted);
+  /* Creates the thin border lines between items */
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-grid.hidden {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.grid-item {
+  background: var(--bg-black);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.grid-item:hover {
+  background: rgba(90, 45, 110, 0.1);
+}
+
+.item-inner {
+  max-width: 300px;
+}
+
+.item-id {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--dark-mauve);
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  color: var(--light-mauve);
+}
+
+p {
+  font-size: 0.9rem;
+  color: var(--grey-dotted);
+  margin-bottom: 2.5rem;
+}
+
+.item-action {
+  display: inline-block;
+  padding: 8px 24px;
+  border: 1px solid var(--dark-mauve);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--dark-mauve);
+  transition: all 0.3s;
+}
+
+.grid-item:hover .item-action {
+  border-color: var(--light-mauve);
+  color: var(--light-mauve);
+  background: rgba(235, 210, 255, 0.05);
+}
+
+/* Expansion Animation for each block */
+.main-grid:not(.hidden) .grid-item {
+  animation: expandIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty));
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+/* Specific start positions for the 4 blocks to expand outwards */
+.gallery {
+  --tx: -20px;
+  --ty: -20px;
+}
+
+.github {
+  --tx: 20px;
+  --ty: -20px;
+}
+
+.sdk {
+  --tx: -20px;
+  --ty: 20px;
+}
+
+.design {
+  --tx: 20px;
+  --ty: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

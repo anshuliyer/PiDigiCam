@@ -1,10 +1,10 @@
-# PiDigiCam Setup & Testing - Summary
+# EuclidCam Setup & Testing - Summary
 
 ## What Was Created
 
 ### 1. **Test Emulator** (`host/python/test/`)
 
-A complete testing and demonstration suite for PiDigiCam's image processing filters and enhancements.
+A complete testing and demonstration suite for EuclidCam's image processing filters and enhancements.
 
 #### Files Created:
 - **emulator.py** - Main demonstration script
@@ -50,7 +50,7 @@ cd firmware/build
 ## Directory Structure
 
 \`\`\`
-PiDigiCam/
+EuclidCam/
 ├── host/python/test/               [NEW]
 │   ├── emulator.py                 [NEW] Main testing script
 │   ├── __init__.py                 [NEW] Package marker
