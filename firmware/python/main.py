@@ -41,9 +41,12 @@ def overlay_ui(frame, config):
     else: # 270
         x_base, y_base = padding, padding
 
-    # Flash Icon (Thunderbolt)
+    # Vertical alignment center
+    y_row = y_base + 5
+    
+    # Flash Icon (Thunderbolt) - Moved up slightly
     if config.get("flash"):
-        x, y = x_base - 20, y_base
+        x, y = x_base - 20, y_row - 12
         points = [
             (x, y), (x - 8, y + 8),
             (x - 4, y + 8), (x - 12, y + 20),
@@ -52,15 +55,15 @@ def overlay_ui(frame, config):
         ]
         draw.polygon(points, fill=MAUVE)
     
-    # Battery Placeholder
-    x_batt = x_base - 60
-    y_batt = y_base
+    # Battery Placeholder - Centered on y_row
+    x_batt = x_base - 80
+    y_batt = y_row - 5
     draw.rectangle([x_batt, y_batt, x_batt + 20, y_batt + 10], outline=MAUVE, width=2)
     draw.rectangle([x_batt + 20, y_batt + 3, x_batt + 22, y_batt + 7], fill=MAUVE)
     
-    # WiFi Placeholder
-    x_wifi = x_base - 100
-    y_wifi = y_base
+    # WiFi Placeholder - Centered on y_row
+    x_wifi = x_base - 140
+    y_wifi = y_row - 10
     for i in range(1, 4):
         # Draw small arcs for wifi
         r = i * 4
