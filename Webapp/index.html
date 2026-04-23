@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EuclidCam | Geometric Precision</title>
   <meta name="description" content="EuclidCam: Mathematical image enhancement.">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -19,6 +19,65 @@
     <div class="boot-inner">
       <img src="assets/euclid_construction.gif" alt="Euclid Construction" class="boot-gif">
       <p class="boot-text">INITIALIZING GEOMETRIC ENGINE...</p>
+    </div>
+  </div>
+
+  <div id="concept-screen" class="concept-screen hidden">
+    <!-- SVG Filter for Chalk Effect -->
+    <svg style="width:0; height:0; position:absolute;">
+      <filter id="chalk-filter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+  
+    <div class="concept-inner">
+      <svg class="chalkboard-svg" viewBox="0 0 500 350">
+        <!-- Sunflower Seeds (Phyllotaxis Approximation) -->
+        <g class="sunflower" filter="url(#chalk-filter)"></g>
+  
+        <!-- Building / Blueprint Schematic -->
+        <g class="building-schematic" filter="url(#chalk-filter)">
+          <!-- Schematic Grid / Axes -->
+          <line x1="50" y1="175" x2="450" y2="175" class="chalk-line dashed thin" style="opacity: 0.3;" />
+          <line x1="250" y1="50" x2="250" y2="300" class="chalk-line dashed thin" style="opacity: 0.3;" />
+  
+          <!-- Camera Module Construction -->
+          <rect x="200" y="125" width="100" height="70" rx="5" class="chalk-line" />
+          <circle cx="250" cy="160" r="25" class="chalk-line" />
+          <rect x="230" y="110" width="40" height="15" class="chalk-line" />
+  
+          <!-- Quirky Doodles -->
+          <g class="quirky-doodles">
+            <!-- Coffee Mug -->
+            <path
+              d="M 420,280 Q 425,280 430,285 L 430,305 Q 425,310 410,310 L 390,310 Q 375,310 370,305 L 370,285 Q 375,280 380,280 Z"
+              class="chalk-line thin" />
+            <path d="M 430,288 Q 445,288 445,296 Q 445,302 430,302" class="chalk-line thin" />
+            <!-- Steam -->
+            <path d="M 390,275 Q 385,265 390,255" class="chalk-line thin" style="opacity: 0.5;" />
+            <path d="M 410,270 Q 405,260 410,250" class="chalk-line thin" style="opacity: 0.5;" />
+  
+            <!-- Scribbles / Notes -->
+            <text x="380" y="325" class="chalk-text mini">FIXME: PK/Φ ?</text>
+            <text x="60" y="80" class="chalk-text mini" style="transform: rotate(-5deg);">TODO: ADD_AI</text>
+          </g>
+  
+          <!-- Structural Annotations -->
+          <line x1="180" y1="100" x2="200" y2="125" class="chalk-line thin" />
+          <text x="140" y="90" class="chalk-text mini">MODULAR_CORE</text>
+  
+          <line x1="320" y1="210" x2="300" y2="195" class="chalk-line thin" />
+          <text x="330" y="225" class="chalk-text mini">NON_LINEAR_GROWTH</text>
+        </g>
+      </svg>
+  
+      <div class="concept-text">
+        <h1 class="headline shadowed">Concept</h1>
+        <p class="subtext">A caffeinated weekend project for you to build on top of. <br>Totally open source. A bit
+          wobbly, very mathematical, and built for building.</p>
+        <p class="bridge mono">EuclidCam: Digital Legos for vision. Polish it. Break it. Make it yours.</p>
+      </div>
     </div>
   </div>
 
@@ -57,7 +116,7 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=1.1"></script>
 </body>
 
 </html>

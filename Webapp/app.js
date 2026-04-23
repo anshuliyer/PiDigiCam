@@ -1,22 +1,64 @@
 document.addEventListener('DOMContentLoaded', () => {
   const bootScreen = document.getElementById('boot-screen');
+  const conceptScreen = document.getElementById('concept-screen');
   const mainGrid = document.getElementById('main-grid');
 
-  console.log('--- EuclidCam Boot Sequence Initiated ---');
+  console.log('--- EuclidCam Sequence Initiated ---');
 
-  // Simulate a brief "boot" period matching the construction GIF vibe
+  // Sequence 1: Boot Screen (Splash)
   setTimeout(() => {
-    console.log('--- Geometry Verified. Expanding UI. ---');
-
-    // Step 1: Fade out boot screen
+    console.log('--- Boot Complete. Transitioning to Concept. ---');
     bootScreen.style.opacity = '0';
 
-    // Step 2: Show and expand main grid
     setTimeout(() => {
       bootScreen.style.display = 'none';
-      mainGrid.classList.remove('hidden');
-    }, 800); // Match transition duration in CSS
-  }, 2800); // 2.8 seconds of GIF playback
+      conceptScreen.classList.remove('hidden');
+      conceptScreen.style.display = 'grid';
+      conceptScreen.style.opacity = '1';
+
+      // Sequence 2: Concept Screen (Chalk Sunflower Show)
+      setTimeout(() => {
+        generateSunflowerSeeds();
+
+        console.log('--- Concept Explained. Loading Dashboard. ---');
+        setTimeout(() => {
+          conceptScreen.style.opacity = '0';
+          setTimeout(() => {
+            conceptScreen.style.display = 'none';
+            mainGrid.classList.remove('hidden');
+          }, 1000);
+        }, 8500); // Increased time for chalk animation
+      }, 800);
+    }, 800);
+  }, 2800);
+
+  function generateSunflowerSeeds() {
+    const sunflowerGroup = document.querySelector('.sunflower');
+    if (!sunflowerGroup) {
+      console.warn('Sunflower group not found. Skipping seed generation.');
+      return;
+    }
+    const centerX = 250;
+    const centerY = 175;
+    const c = 7; // Scaling factor
+
+    for (let i = 0; i < 80; i++) {
+      const theta = i * 137.5 * (Math.PI / 180);
+      const r = c * Math.sqrt(i);
+      const x = centerX + r * Math.cos(theta);
+      const y = centerY + r * Math.sin(theta);
+
+      const seed = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      seed.setAttribute("cx", x);
+      seed.setAttribute("cy", y);
+      seed.setAttribute("r", "1.5");
+      seed.setAttribute("fill", "rgba(235, 210, 255, 0.7)");
+      seed.style.opacity = "0";
+      seed.style.animation = `fadeIn 0.2s ease-out ${i * 0.04}s forwards`;
+
+      sunflowerGroup.appendChild(seed);
+    }
+  }
 
   // Interactive handling for grid items
   const gridItems = document.querySelectorAll('.grid-item');

@@ -52,6 +52,157 @@ body {
   letter-spacing: 0.2rem;
 }
 
+/* Concept Screen */
+.concept-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-black);
+  display: grid;
+  place-items: center;
+  z-index: 95;
+  transition: opacity 1s ease-in-out;
+  opacity: 1;
+}
+
+.concept-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.concept-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+  text-align: center;
+  z-index: 10;
+}
+
+.chalkboard-svg {
+  width: 500px;
+  height: 350px;
+  margin-bottom: 2rem;
+  overflow: visible;
+}
+
+.chalk-line,
+.arrow-line,
+.arrow-head {
+  fill: none;
+  stroke: rgba(235, 210, 255, 0.9);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+.chalk-line.thin {
+  stroke-width: 0.8;
+}
+
+.chalk-line.dashed {
+  stroke-dasharray: 8, 8;
+}
+
+.chalk-text {
+  fill: rgba(235, 210, 255, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  opacity: 0;
+}
+
+.chalk-text.mini {
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+}
+
+.concept-screen:not(.hidden) .building-schematic .chalk-line {
+  animation: drawLine 2s ease-out forwards;
+}
+
+.concept-screen:not(.hidden) .building-schematic .chalk-line.dashed {
+  animation: drawLine 1s ease-out forwards;
+}
+
+.concept-screen:not(.hidden) .quirky-doodles .chalk-line,
+.concept-screen:not(.hidden) .quirky-doodles .chalk-text {
+  animation: fadeIn 1s ease-out 3s forwards, wobble 3s ease-in-out infinite;
+}
+
+.concept-screen:not(.hidden) .chalk-text {
+  animation: fadeIn 1s ease-out 2.5s forwards;
+}
+
+@keyframes wobble {
+
+  0%,
+  100% {
+    transform: rotate(0deg) skew(0deg);
+  }
+
+  25% {
+    transform: rotate(1deg) skew(1deg);
+  }
+
+  75% {
+    transform: rotate(-1deg) skew(-1deg);
+  }
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.concept-text {
+  animation: fadeInText 1s ease-out 3.5s both;
+  padding: 0 20px;
+}
+
+.headline {
+  font-size: 3.5rem;
+  margin-bottom: 1.2rem;
+  font-weight: 200;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.shadowed {
+  text-shadow: 0 0 20px rgba(235, 210, 255, 0.3);
+}
+
+.subtext {
+  font-size: 1rem;
+  color: var(--grey-dotted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  max-width: 500px;
+}
+
+.bridge.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--dark-mauve);
+  letter-spacing: 0.1em;
+  border-top: 1px solid rgba(90, 45, 110, 0.5);
+  padding-top: 1rem;
+  display: inline-block;
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* Main Grid */
 .main-grid {
   display: grid;
