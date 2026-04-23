@@ -170,6 +170,39 @@ class TopPanel:
         
         draw.text((x + 18, y), "[X] Delete", fill=self.MAUVE)
 
+    def _draw_connection_overlay(self, draw):
+        """
+        Draws a large QR code and connection details in the center of the screen.
+        """
+        w, h = self.screen_res
+        overlay_w, overlay_h = 300, 240
+        x, y = (w - overlay_w) // 2, (h - overlay_h) // 2
+        
+        # Transparent-ish background box
+        draw.rectangle([x, y, x + overlay_w, y + overlay_h], fill=(0, 0, 0), outline=self.MAUVE, width=3)
+        
+        # Title
+        draw.text((x + 20, y + 15), "CONNECTIVITY ACTIVE", fill=self.MAUVE)
+        
+        # Load the QR code image if it exists
+        import os
+        qr_path = os.path.join(os.path.dirname(__file__), "connectivity/static/qr_code.png")
+        if os.path.exists(qr_path):
+            try:
+                qr_img = Image.open(qr_path).convert("RGB")
+                qr_img = qr_img.resize((140, 140))
+                # Paste it onto the draw surface's image
+                draw._image.paste(qr_img, (x + (overlay_w - 140)//2, y + 50))
+            except Exception as e:
+                print(f"[ERROR] Loading QR for UI: {e}")
+                draw.text((x + 20, y + 100), "QR ERROR", fill=(255, 0, 0))
+        else:
+             draw.text((x + 20, y + 100), "GENERATING QR...", fill=self.MAUVE)
+
+        # Instructions
+        draw.text((x + 20, y + overlay_h - 40), "Scan to browse images", fill=self.MAUVE)
+        draw.text((x + 20, y + overlay_h - 20), "Press Connect to toggle", fill=self.MAUVE)
+
     def render(self, frame):
         """
         Applies the UI overlay to the provided frame.
@@ -178,10 +211,15 @@ class TopPanel:
         draw = ImageDraw.Draw(img)
         
         show_gallery = self.config.get("show_gallery", False)
+        is_connected = self.config.get("is_connected", False)
         
         if show_gallery:
             self._draw_bin_icon(draw)
             self._draw_gallery_view(draw, None)
+        elif is_connected:
+            # Add a reference to the image in the draw object so _draw_connection_overlay can use paste
+            draw._image = img 
+            self._draw_connection_overlay(draw)
         else:
             x_base, y_base = self._calculate_base_pos()
             y_row = y_base + 5

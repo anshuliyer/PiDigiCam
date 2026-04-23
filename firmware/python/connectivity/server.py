@@ -1,18 +1,47 @@
 import os
+import socket
+import qrcode
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for
 
 app = Flask(__name__)
 
 # Config
-PHOTO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../Captured"))
+BASE_DIR = os.path.dirname(__file__)
+PHOTO_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../../Captured"))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
+def get_ip_address():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+def generate_qr_code(url):
+    qr = qrcode.QRCode(version=1, border=2, box_size=10)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    qr_path = os.path.join(STATIC_DIR, "qr_code.png")
+    img.save(qr_path)
+    return qr_path
 
 @app.route('/')
 def index():
     if not os.path.exists(PHOTO_DIR):
         os.makedirs(PHOTO_DIR, exist_ok=True)
     
+    # Verify files
     files = sorted([f for f in os.listdir(PHOTO_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))], reverse=True)
-    return render_template('index.html', images=files)
+    
+    server_ip = get_ip_address()
+    server_url = f"http://{server_ip}:5000"
+    generate_qr_code(server_url)
+    
+    return render_template('index.html', images=files, server_url=server_url)
 
 @app.route('/images/<filename>')
 def get_image(filename):
