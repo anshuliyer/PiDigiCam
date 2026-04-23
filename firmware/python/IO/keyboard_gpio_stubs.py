@@ -31,7 +31,7 @@ class KeyboardInterface:
             if line in ["u", "w"]:
                 return "UP"
             # DOWN mappings
-            elif line in ["d", "x"]:
+            elif line in ["x"]: # Removed 'd' from DOWN to avoid conflict with gallery RIGHT
                 return "DOWN"
             # SELECT mappings
             elif line == "*":
@@ -39,6 +39,13 @@ class KeyboardInterface:
             # SPACE (Menu toggle)
             elif " " in line or line == "s":
                 return "SPACE"
+            # Gallery mappings
+            elif line == "g":
+                return "GALLERY"
+            elif line == "a":
+                return "LEFT"
+            elif line == "d":
+                return "RIGHT"
             # Any other key acts as ENTER (Snap photo)
             else:
                 return "ENTER"

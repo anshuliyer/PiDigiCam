@@ -156,6 +156,10 @@ def run(config=None):
     ]
     config.setdefault("mode_idx", 0)
     config.setdefault("grid_mode", grid_settings.CompositionGrid.OFF)
+    config.setdefault("show_gallery", False)
+    config.setdefault("gallery_idx", 0)
+    config.setdefault("photo_dir", "../../Captured")
+    
     comp_grid = grid_settings.CompositionGrid()
     
     panel = ui_top.TopPanel(config, SCREEN_RES)
@@ -168,19 +172,46 @@ def run(config=None):
             with mmap.mmap(f.fileno(), map_size) as fb_map:
                 while True:
                     loop_start = time.time()
-                    current_mode = modes[config["mode_idx"]]
                     
-                    frame = picam2.capture_array()
-                    if frame is not None:
-                        frame = current_mode.process_frame(frame)
+                    if config.get("show_gallery"):
+                        # Gallery Mode: Load and display captured image
+                        photo_dir = config.get("photo_dir", "../../Captured")
+                        if not os.path.exists(photo_dir):
+                            os.makedirs(photo_dir, exist_ok=True)
                         
-                        # Apply Compositional Grid if enabled
-                        pil_img = Image.fromarray(frame)
-                        pil_img = comp_grid.apply(pil_img, config["grid_mode"])
-                        frame = np.array(pil_img)
+                        files = sorted([f for f in os.listdir(photo_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png'))])
+                        if files:
+                            idx = config["gallery_idx"] % len(files)
+                            img_path = os.path.join(photo_dir, files[idx])
+                            try:
+                                pil_img = Image.open(img_path).convert("RGB")
+                                pil_img = pil_img.resize(SCREEN_RES)
+                                frame = np.array(pil_img)
+                            except Exception as e:
+                                print(f"[ERROR] Loading {img_path}: {e}")
+                                frame = np.zeros((SCREEN_RES[1], SCREEN_RES[0], 3), dtype=np.uint8)
+                        else:
+                            # Empty gallery
+                            frame = np.zeros((SCREEN_RES[1], SCREEN_RES[0], 3), dtype=np.uint8)
+                            draw = ImageDraw.Draw(Image.fromarray(frame))
+                            draw.text(( SCREEN_RES[0]//2 - 40, SCREEN_RES[1]//2), "Captured is Empty", fill=(255, 255, 255))
                         
                         frame = panel.render(frame)
                         display_to_map(frame, fb_map)
+                    else:
+                        # Camera Mode
+                        current_mode = modes[config["mode_idx"]]
+                        frame = picam2.capture_array()
+                        if frame is not None:
+                            frame = current_mode.process_frame(frame)
+                            
+                            # Apply Compositional Grid if enabled
+                            pil_img = Image.fromarray(frame)
+                            pil_img = comp_grid.apply(pil_img, config["grid_mode"])
+                            frame = np.array(pil_img)
+                            
+                            frame = panel.render(frame)
+                            display_to_map(frame, fb_map)
                     
                     key = kbd.get_input()
                     if key == "ENTER":
@@ -200,6 +231,17 @@ def run(config=None):
                                 config["menu_index"] = (config["menu_index"] + 1) % 4
                             else:
                                 config["submenu_index"] = (config["submenu_index"] + 1) % len(modes)
+                    elif key == "GALLERY":
+                        config["show_gallery"] = not config.get("show_gallery", False)
+                        config["show_menu"] = False
+                        if config["show_gallery"]:
+                            config["gallery_idx"] = 0 # Reset to latest or first
+                    elif key == "LEFT":
+                        if config.get("show_gallery"):
+                            config["gallery_idx"] -= 1
+                    elif key == "RIGHT":
+                        if config.get("show_gallery"):
+                            config["gallery_idx"] += 1
                     elif key == "SELECT":
                         if config.get("show_menu"):
                             if not config.get("show_submenu"):

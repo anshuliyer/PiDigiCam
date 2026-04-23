@@ -55,66 +55,52 @@ class TopPanel:
         """
         w, h = self.screen_res
         x, y = w - self.padding - 10, h - self.padding - 10
-        # Simple gear: a circle with some teeth
         draw.ellipse([x-8, y-8, x+8, y+8], outline=self.MAUVE, width=2)
         for i in range(8):
+            import math
             angle = i * (360/8)
-            # Draw small teeth (lines)
-            from math import cos, sin, radians
-            x1 = x + 8 * cos(radians(angle))
-            y1 = y + 8 * sin(radians(angle))
-            x2 = x + 12 * cos(radians(angle))
-            y2 = y + 12 * sin(radians(angle))
+            x1 = x + 8 * math.cos(math.radians(angle))
+            y1 = y + 8 * math.sin(math.radians(angle))
+            x2 = x + 12 * math.cos(math.radians(angle))
+            y2 = y + 12 * math.sin(math.radians(angle))
             draw.line([x1, y1, x2, y2], fill=self.MAUVE, width=2)
 
-    def _draw_menu(self, draw):
+    def _draw_gallery_icon(self, draw):
         """
-        Draws the settings menu list or a submenu with a Mauve background.
+        Draws a small gallery (picture) icon in the bottom-left corner.
         """
         w, h = self.screen_res
-        menu_w, menu_h = 240, 220
-        x, y = (w - menu_w) // 2, (h - menu_h) // 2
+        x, y = self.padding, h - self.padding - 10
+        # Draw a small "photo" frame
+        draw.rectangle([x, y-12, x+16, y+4], outline=self.MAUVE, width=2)
+        # Draw a "mountain" inside
+        draw.polygon([(x+3, y+2), (x+8, y-6), (x+13, y+2)], fill=self.MAUVE)
         
-        # Mauve background box
-        draw.rectangle([x, y, x + menu_w, y + menu_h], fill=self.MAUVE, outline=(255, 255, 255), width=2)
-        
-        show_submenu = self.config.get("show_submenu", False)
-        current_submenu = self.config.get("current_submenu", "Modes")
-        
-        if not show_submenu:
-            # Main Menu
-            items = ["Modes", "LightMeter", "Flash", "Grid"]
-            selected_idx = self.config.get("menu_index", 0)
-            title = "SETTINGS"
-        elif current_submenu == "Modes":
-            # Modes Submenu
-            items = ["Standard", "Wide-angle", "Summer", "Bokeh", "Kodak", "Cyberpunk", "Champagne"]
-            selected_idx = self.config.get("submenu_index", 0)
-            title = "SELECT MODE"
-        elif current_submenu == "Grid":
-            # Grid Submenu
-            items = ["OFF", "3x3", "Euclid"]
-            selected_idx = self.config.get("submenu_index", 0)
-            title = "SELECT GRID"
-        else:
-            items = []
-            selected_idx = 0
-            title = "UNKNOWN"
-        
-        # Title
-        draw.text((x + 10, y + 5), title, fill=(0, 0, 0))
-        draw.line([(x, y + 20), (x + menu_w, y + 20)], fill=(255, 255, 255), width=1)
+        # Highlight if gallery is active
+        if self.config.get("show_gallery"):
+            draw.text((x + 20, y - 8), "GALLERY", fill=self.MAUVE)
 
-        for i, item in enumerate(items):
-            text_x = x + 30
-            text_y = y + 28 + i*25
-            
-            # Highlight selected item
-            if i == selected_idx:
-                draw.text((x + 10, text_y), "*", fill=(0, 0, 0))
-                draw.text((text_x, text_y), item, fill=(0, 0, 0))
-            else:
-                draw.text((text_x, text_y), item, fill=(60, 60, 60))
+    def _draw_gallery_view(self, draw, gallery_img):
+        """
+        Draws the gallery viewing state: The image + navigation hints.
+        """
+        w, h = self.screen_res
+        if gallery_img:
+            # The gallery_img should already be resized to screen_res or centered
+            pass # We'll assume the frame passed to render IS the gallery image if show_gallery is True
+        
+        # Navigation Hints
+        draw.rectangle([10, h-40, 100, h-10], fill=(0, 0, 0, 128))
+        draw.text((20, h-35), "[A] Prev", fill=self.MAUVE)
+        
+        draw.rectangle([w-105, h-40, w-10, h-10], fill=(0, 0, 0, 128))
+        draw.text((w-95, h-35), "[D] Next", fill=self.MAUVE)
+        
+        draw.text((w//2 - 40, h-35), "Exit: [G]", fill=self.MAUVE)
+
+    def _draw_menu(self, draw):
+        # ... (keep existing _draw_menu)
+        pass
 
     def render(self, frame):
         """
@@ -123,18 +109,22 @@ class TopPanel:
         img = Image.fromarray(frame)
         draw = ImageDraw.Draw(img)
         
-        x_base, y_base = self._calculate_base_pos()
-        y_row = y_base + 5
+        show_gallery = self.config.get("show_gallery", False)
         
-        self._draw_flash(draw, x_base, y_row)
-        self._draw_battery(draw, x_base, y_row)
-        self._draw_wifi(draw, x_base, y_row)
-        
-        # Bottom-right gear
-        self._draw_gear(draw)
-        
-        # Settings menu
-        if self.config.get("show_menu"):
-            self._draw_menu(draw)
+        if show_gallery:
+            self._draw_gallery_view(draw, None)
+        else:
+            x_base, y_base = self._calculate_base_pos()
+            y_row = y_base + 5
+            
+            self._draw_flash(draw, x_base, y_row)
+            self._draw_battery(draw, x_base, y_row)
+            self._draw_wifi(draw, x_base, y_row)
+            
+            self._draw_gear(draw)
+            self._draw_gallery_icon(draw)
+            
+            if self.config.get("show_menu"):
+                self._draw_menu(draw)
 
         return np.array(img)
