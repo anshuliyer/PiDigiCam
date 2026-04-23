@@ -7,6 +7,7 @@ import mmap
 from picamera2 import Picamera2
 from PIL import Image, ImageDraw
 from UI import ui_top
+from IO import io_top
 
 # Config
 FB_DEVICE = "/dev/fb1" 
@@ -59,7 +60,10 @@ def take_photo(fb_map, config=None):
 
 def run(config=None):
     # Main Loop
+    if config is None:
+        config = {}
     panel = ui_top.TopPanel(config, SCREEN_RES)
+    kbd = io_top.KeyboardInterface()
     start_preview()
     try:
         with open(FB_DEVICE, "r+b") as f:
@@ -72,9 +76,12 @@ def run(config=None):
                         frame = panel.render(frame)
                         display_to_map(frame, fb_map)
                     
-                    if select.select([sys.stdin], [], [], 0)[0]:
-                        sys.stdin.readline()
+                    key = kbd.get_input()
+                    if key == "ENTER":
                         take_photo(fb_map, config)
+                    elif key == "SPACE":
+                        config["show_menu"] = not config.get("show_menu", False)
+                        print(f"[SYSTEM] Settings menu: {'OPEN' if config['show_menu'] else 'CLOSED'}")
                     
                     time.sleep(max(0, (1.0 / FPS_CAP) - (time.time() - loop_start)))
     except KeyboardInterrupt:

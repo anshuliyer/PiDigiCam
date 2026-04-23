@@ -49,6 +49,43 @@ class TopPanel:
             bbox = [x_wifi + 10 - r, y_wifi + 10 - r, x_wifi + 10 + r, y_wifi + 10 + r]
             draw.arc(bbox, 225, 315, fill=self.MAUVE, width=2)
 
+    def _draw_gear(self, draw):
+        """
+        Draws a small gear icon in the bottom-right corner.
+        """
+        w, h = self.screen_res
+        x, y = w - self.padding - 10, h - self.padding - 10
+        # Simple gear: a circle with some teeth
+        draw.ellipse([x-8, y-8, x+8, y+8], outline=self.MAUVE, width=2)
+        for i in range(8):
+            angle = i * (360/8)
+            # Draw small teeth (lines)
+            from math import cos, sin, radians
+            x1 = x + 8 * cos(radians(angle))
+            y1 = y + 8 * sin(radians(angle))
+            x2 = x + 12 * cos(radians(angle))
+            y2 = y + 12 * sin(radians(angle))
+            draw.line([x1, y1, x2, y2], fill=self.MAUVE, width=2)
+
+    def _draw_menu(self, draw):
+        """
+        Draws the settings menu list with a Mauve background.
+        """
+        w, h = self.screen_res
+        menu_w, menu_h = 150, 120
+        x, y = (w - menu_w) // 2, (h - menu_h) // 2
+        
+        # Mauve background box
+        draw.rectangle([x, y, x + menu_w, y + menu_h], fill=self.MAUVE)
+        
+        # Menu items
+        items = ["Mode", "LightMeter", "Flash", "Grid"]
+        for i, item in enumerate(items):
+            # Drawing text is tricky without a font, but we'll use rectangles as placeholders
+            # or try to find a default font. 
+            # For now, we'll draw simple text placeholders if no font is available.
+            draw.text((x + 10, y + 10 + i*25), item, fill=(0, 0, 0))
+
     def render(self, frame):
         """
         Applies the UI overlay to the provided frame.
@@ -62,5 +99,12 @@ class TopPanel:
         self._draw_flash(draw, x_base, y_row)
         self._draw_battery(draw, x_base, y_row)
         self._draw_wifi(draw, x_base, y_row)
+        
+        # Bottom-right gear
+        self._draw_gear(draw)
+        
+        # Settings menu
+        if self.config.get("show_menu"):
+            self._draw_menu(draw)
 
         return np.array(img)
