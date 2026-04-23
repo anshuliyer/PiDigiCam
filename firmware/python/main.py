@@ -53,7 +53,7 @@ class CameraMode:
         processed_img.save(filename, quality=95)
         
         # Review
-        review_img = processed_img.resize(SCREEN_RES)
+        review_img = processed_img.resize(SCREEN_RES, Image.LANCZOS)
         display_to_map(np.array(review_img), fb_map)
         time.sleep(2.0)
         
@@ -118,8 +118,21 @@ class FilterMode(CameraMode):
         return img
 
     def process_frame(self, frame):
-        # Preview with filter
+        # Preview with filter and 3:2 crop
         img = Image.fromarray(frame)
+        
+        # Consistent 3:2 crop for preview
+        w, h = img.size
+        target_ratio = 1.5
+        if w / h > target_ratio:
+            new_width = h * target_ratio
+            img = img.crop(((w - new_width) / 2, 0, (w + new_width) / 2, h))
+        else:
+            new_height = w / target_ratio
+            img = img.crop((0, (h - new_height) / 2, w, (h + new_height) / 2))
+        
+        img = img.resize(SCREEN_RES, Image.LANCZOS)
+            
         if self.filter_func:
             img = self.filter_func(img)
         return np.array(img)
@@ -217,7 +230,7 @@ def run(config=None):
                             img_path = os.path.join(photo_dir, files[idx])
                             try:
                                 pil_img = Image.open(img_path).convert("RGB")
-                                pil_img = pil_img.resize(SCREEN_RES)
+                                pil_img = pil_img.resize(SCREEN_RES, Image.LANCZOS)
                                 frame = np.array(pil_img)
                             except Exception as e:
                                 print(f"[ERROR] Loading {img_path}: {e}")

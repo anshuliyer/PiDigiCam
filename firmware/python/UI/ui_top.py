@@ -194,7 +194,7 @@ class TopPanel:
         if os.path.exists(qr_path):
             try:
                 qr_img = Image.open(qr_path).convert("RGB")
-                qr_img = qr_img.resize((140, 140))
+                qr_img = qr_img.resize((140, 140), Image.LANCZOS)
                 # Paste it onto the draw surface's image
                 draw._image.paste(qr_img, (x + (overlay_w - 140)//2, y + 50))
             except Exception as e:
