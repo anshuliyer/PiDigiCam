@@ -11,9 +11,7 @@ FB_DEVICE = "/dev/fb1"
 SCREEN_RES = (480, 320)
 FPS_CAP = 3 
 
-picam2 = Picamera2()
-
-def start_preview():
+def start_preview(picam2):
     config = picam2.create_video_configuration(main={"size": SCREEN_RES, "format": "RGB888"})
     picam2.configure(config)
     picam2.start()
@@ -30,7 +28,7 @@ def display_to_map(data_array, fb_map):
     fb_map.seek(0)
     fb_map.write(rgb565.tobytes())
 
-def take_photo(fb_map):
+def take_photo(picam2, fb_map):
     print("\n[SHUTTER] Firing...")
     picam2.stop()
     config = picam2.create_still_configuration()
@@ -79,7 +77,7 @@ def take_photo(fb_map):
     time.sleep(3.0) 
     
     picam2.stop()
-    start_preview()
+    start_preview(picam2)
 
 def apply_grid(data_array):
     img = Image.fromarray(data_array)

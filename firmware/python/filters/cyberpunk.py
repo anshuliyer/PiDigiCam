@@ -11,13 +11,6 @@ FB_DEVICE = "/dev/fb1"
 SCREEN_RES = (480, 320)
 FPS_CAP = 3 
 
-picam2 = Picamera2()
-
-def start_preview():
-    config = picam2.create_video_configuration(main={"size": SCREEN_RES, "format": "RGB888"})
-    picam2.configure(config)
-    picam2.start()
-
 def apply_cyberpunk_filter(pil_img):
     """Cyberpunk aesthetic: Magenta and Cyan color shift."""
     enhancer = ImageEnhance.Contrast(pil_img)
@@ -36,50 +29,57 @@ def display_to_map(data_array, fb_map):
     fb_map.seek(0)
     fb_map.write(rgb565.tobytes())
 
-def take_photo(fb_map):
-    print("\n[SHUTTER] Firing with Cyberpunk Filter...")
-    picam2.stop()
-    config = picam2.create_still_configuration()
-    picam2.configure(config)
-    picam2.start()
-    
-    time.sleep(1)
-    filename = f"cyberpunk_{int(time.time())}.jpg"
-    picam2.capture_file("temp.jpg")
-    
-    img = Image.open("temp.jpg").convert("RGB")
-    w, h = img.size
-    target_ratio = 1.5
-    
-    if w / h > target_ratio:
-        new_width = h * target_ratio
-        img = img.crop(((w - new_width) / 2, 0, (w + new_width) / 2, h))
-    else:
-        new_height = w / target_ratio
-        img = img.crop((0, (h - new_height) / 2, w, (h + new_height) / 2))
-    
-    img = apply_cyberpunk_filter(img)
-    img.save(filename, quality=95)
-    
-    review_img = img.resize(SCREEN_RES)
-    display_to_map(np.array(review_img), fb_map)
-    time.sleep(3.0) 
-    picam2.stop()
-    start_preview()
-
-def apply_ui(data_array):
-    img = Image.fromarray(data_array)
-    img = apply_cyberpunk_filter(img)
-    draw = ImageDraw.Draw(img)
-    w, h = SCREEN_RES
-    color = (0, 0, 0)
-    draw.line([(w//3, 0), (w//3, h)], fill=color, width=1)
-    draw.line([(2*w//3, 0), (2*w//3, h)], fill=color, width=1)
-    draw.line([(0, h//3), (w, h//3)], fill=color, width=1)
-    draw.line([(0, 2*h//3), (w, 2*h//3)], fill=color, width=1)
-    return np.array(img)
-
 if __name__ == "__main__":
+    picam2 = Picamera2()
+
+    def start_preview():
+        config = picam2.create_video_configuration(main={"size": SCREEN_RES, "format": "RGB888"})
+        picam2.configure(config)
+        picam2.start()
+
+    def take_photo(fb_map):
+        print("\n[SHUTTER] Firing with Cyberpunk Filter...")
+        picam2.stop()
+        config = picam2.create_still_configuration()
+        picam2.configure(config)
+        picam2.start()
+        
+        time.sleep(1)
+        filename = f"cyberpunk_{int(time.time())}.jpg"
+        picam2.capture_file("temp.jpg")
+        
+        img = Image.open("temp.jpg").convert("RGB")
+        w, h = img.size
+        target_ratio = 1.5
+        
+        if w / h > target_ratio:
+            new_width = h * target_ratio
+            img = img.crop(((w - new_width) / 2, 0, (w + new_width) / 2, h))
+        else:
+            new_height = w / target_ratio
+            img = img.crop((0, (h - new_height) / 2, w, (h + new_height) / 2))
+        
+        img = apply_cyberpunk_filter(img)
+        img.save(filename, quality=95)
+        
+        review_img = img.resize(SCREEN_RES)
+        display_to_map(np.array(review_img), fb_map)
+        time.sleep(3.0) 
+        picam2.stop()
+        start_preview()
+
+    def apply_ui(data_array):
+        img = Image.fromarray(data_array)
+        img = apply_cyberpunk_filter(img)
+        draw = ImageDraw.Draw(img)
+        w, h = SCREEN_RES
+        color = (0, 0, 0)
+        draw.line([(w//3, 0), (w//3, h)], fill=color, width=1)
+        draw.line([(2*w//3, 0), (2*w//3, h)], fill=color, width=1)
+        draw.line([(0, h//3), (w, h//3)], fill=color, width=1)
+        draw.line([(0, 2*h//3), (w, 2*h//3)], fill=color, width=1)
+        return np.array(img)
+
     start_preview()
     try:
         with open(FB_DEVICE, "r+b") as f:
