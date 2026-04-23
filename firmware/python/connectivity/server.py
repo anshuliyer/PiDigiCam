@@ -48,7 +48,7 @@ server_ip = get_ip_address()
 generate_qr_code(f"http://{server_ip}:5000")
 
 @app.route('/images/<filename>')
-def get_image(filename):
+def serve_image(filename):
     return send_from_directory(PHOTO_DIR, filename)
 
 @app.route('/download/<filename>')
@@ -61,6 +61,16 @@ def delete_image(filename):
     if os.path.exists(img_path):
         os.remove(img_path)
     return redirect(url_for('index'))
+
+@app.route('/delete-batch', methods=['POST'])
+def delete_batch():
+    data = request.get_json()
+    filenames = data.get('filenames', [])
+    for filename in filenames:
+        img_path = os.path.join(PHOTO_DIR, filename)
+        if os.path.exists(img_path):
+            os.remove(img_path)
+    return {"status": "success"}, 200
 
 if __name__ == '__main__':
     # Run server on all interfaces so it's accessible over network

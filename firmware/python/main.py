@@ -141,19 +141,10 @@ def display_to_map(data_array, fb_map):
     fb_map.seek(0)
     fb_map.write(rgb565.tobytes())
 
-def wifi_connect_worker(config):
-    ssid = config.get("wifi_ssid")
-    password = config.get("wifi_pass")
-    config["wifi_message"] = f"Connecting to {ssid}..."
-    
-    success, msg = wifi_utils.connect_to_wifi(ssid, password)
-    config["wifi_message"] = msg
-    time.sleep(2) 
-    
-    # Start server after connection (or bypass)
+def start_server_worker(config):
+    # Start server directly
     print("[SYSTEM] Starting Flask server...")
     try:
-        # We need the absolute path for connectivity/server.py
         current_dir = os.path.dirname(os.path.abspath(__file__))
         cmd = [sys.executable, os.path.join(current_dir, "connectivity/server.py")]
         proc = subprocess.Popen(cmd, cwd=current_dir)
@@ -162,8 +153,6 @@ def wifi_connect_worker(config):
         config["show_connection_view"] = True
     except Exception as e:
         print(f"[ERROR] Failed to start server: {e}")
-    
-    config["wifi_state"] = None
 
 def run(config=None):
     if config is None:
@@ -241,25 +230,6 @@ def run(config=None):
                         
                         frame = panel.render(frame)
                         display_to_map(frame, fb_map)
-                    elif config.get("wifi_state") == "SCANNING":
-                        frame = picam2.capture_array()
-                        if frame is not None:
-                            qr_text = qr_scanner.scan_frame(frame)
-                            if qr_text:
-                                ssid, password = wifi_utils.parse_wifi_qr(qr_text)
-                                if ssid:
-                                    config["wifi_state"] = "CONNECTING"
-                                    config["wifi_ssid"] = ssid
-                                    config["wifi_pass"] = password
-                                    threading.Thread(target=wifi_connect_worker, args=(config,), daemon=True).start()
-                            
-                            frame = panel.render(frame)
-                            display_to_map(frame, fb_map)
-                    elif config.get("wifi_state") == "CONNECTING":
-                        # Connect screen handled in render
-                        frame = np.zeros((SCREEN_RES[1], SCREEN_RES[0], 3), dtype=np.uint8)
-                        frame = panel.render(frame)
-                        display_to_map(frame, fb_map)
                     else:
                         # Camera Mode
                         current_mode = modes[config["mode_idx"]]
@@ -314,13 +284,7 @@ def run(config=None):
                                 except Exception as e:
                                     print(f"[ERROR] Deleting file: {e}")
                     elif key == "BACK" or key == "q":
-                        if config.get("wifi_state") == "SCANNING":
-                            # BYPASS: start server immediately
-                            print("[SYSTEM] Bypassing WiFi setup...")
-                            config["wifi_state"] = "CONNECTING"
-                            config["wifi_ssid"] = "Existing Network"
-                            threading.Thread(target=wifi_connect_worker, args=(config,), daemon=True).start()
-                        elif config.get("show_connection_view"):
+                        if config.get("show_connection_view"):
                             config["show_connection_view"] = False
                         elif config.get("show_menu"):
                             config["show_menu"] = False
@@ -353,13 +317,8 @@ def run(config=None):
                                         config["submenu_index"] = 0
                                 elif selected == "Connect":
                                     if not config.get("is_connected"):
-                                        if config.get("wifi_ssid"):
-                                            print(f"[SYSTEM] Connecting to {config['wifi_ssid']} (Terminal Config)...")
-                                            config["wifi_state"] = "CONNECTING"
-                                            threading.Thread(target=wifi_connect_worker, args=(config,), daemon=True).start()
-                                        else:
-                                            print("[SYSTEM] Entering WiFi Scan Mode...")
-                                            config["wifi_state"] = "SCANNING"
+                                        print(f"[SYSTEM] Starting server...")
+                                        threading.Thread(target=start_server_worker, args=(config,), daemon=True).start()
                                         config["show_menu"] = False
                                         config["show_submenu"] = False
                                     else:

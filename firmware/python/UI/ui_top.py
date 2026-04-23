@@ -207,42 +207,6 @@ class TopPanel:
         draw.text((x + 20, y + overlay_h - 40), "Scan to browse images", fill=self.MAUVE)
         draw.text((x + 20, y + overlay_h - 20), "[X] BACK to preview", fill=self.MAUVE)
 
-    def _draw_wifi_scanning_overlay(self, draw):
-        """Viewfinder for WiFi QR scanning"""
-        w, h = self.screen_res
-        box_size = 200
-        x, y = (w - box_size)//2, (h - box_size)//2
-        
-        # Dim the rest
-        draw.rectangle([0, 0, w, y], fill=(0, 0, 0, 100))
-        draw.rectangle([0, y + box_size, w, h], fill=(0, 0, 0, 100))
-        draw.rectangle([0, y, x, y + box_size], fill=(0, 0, 0, 100))
-        draw.rectangle([x + box_size, y, w, y + box_size], fill=(0, 0, 0, 100))
-        
-        # Corner marks
-        d = 20
-        draw.line([(x, y), (x+d, y)], fill=self.MAUVE, width=4)
-        draw.line([(x, y), (x, y+d)], fill=self.MAUVE, width=4)
-        
-        draw.line([(x+box_size, y), (x+box_size-d, y)], fill=self.MAUVE, width=4)
-        draw.line([(x+box_size, y), (x+box_size, y+d)], fill=self.MAUVE, width=4)
-        
-        draw.line([(x, y+box_size), (x+d, y+box_size)], fill=self.MAUVE, width=4)
-        draw.line([(x, y+box_size), (x, y+box_size-d)], fill=self.MAUVE, width=4)
-        
-        draw.line([(x+box_size, y+box_size), (x+box_size-d, y+box_size)], fill=self.MAUVE, width=4)
-        draw.line([(x+box_size, y+box_size), (x+box_size, y+box_size-d)], fill=self.MAUVE, width=4)
-
-        draw.text((w//2 - 60, y - 40), "POINT AT WIFI QR", fill=self.MAUVE)
-        draw.text((w//2 - 60, y + box_size + 20), "[X] BYPASS / SKIP", fill=self.MAUVE)
-
-    def _draw_connecting_overlay(self, draw):
-        """Status screen for connecting to WiFi"""
-        w, h = self.screen_res
-        msg = self.config.get("wifi_message", "Connecting...")
-        draw.rectangle([0, 0, w, h], fill=(0, 0, 0))
-        draw.text((w//2 - 80, h//2 - 10), msg, fill=self.MAUVE)
-
     def render(self, frame):
         """
         Applies the UI overlay to the provided frame.
@@ -251,18 +215,11 @@ class TopPanel:
         draw = ImageDraw.Draw(img)
         
         show_gallery = self.config.get("show_gallery", False)
-        is_connected = self.config.get("is_connected", False)
         
         if show_gallery:
             self._draw_bin_icon(draw)
             self._draw_gallery_view(draw, None)
-        elif self.config.get("wifi_state") == "SCANNING":
-            self._draw_wifi_scanning_overlay(draw)
-        elif self.config.get("wifi_state") == "CONNECTING":
-            self._draw_connecting_overlay(draw)
         elif self.config.get("show_connection_view", False):
-            # Show overlay if explicitly enabled, regardless of is_connected (server might be off)
-            # though usually it's used when is_connected is True.
             draw._image = img 
             self._draw_connection_overlay(draw)
         else:

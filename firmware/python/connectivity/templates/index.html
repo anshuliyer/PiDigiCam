@@ -3,36 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EuclidCam - Camera Roll</title>
+    <title>EuclidCam | Gallery</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <img src="{{ url_for('static', filename='logo.gif') }}" alt="EuclidCam" class="hero-gif">
-        <p class="subtitle">Camera roll</p>
+        <img src="{{ url_for('static', filename='euclid_construction.gif') }}" alt="EuclidCam Logo" class="hero-gif">
+        <h2 class="subtitle">Roll</h2>
     </header>
 
+    <div class="batch-actions" id="batch-actions">
+        <button class="btn-batch-delete" onclick="deleteSelected()">Delete Selected (<span
+                id="select-count">0</span>)</button>
+    </div>
+
     <main class="gallery">
-        {% if images %}
-            {% for image in images %}
-            <div class="card">
-                <img src="{{ url_for('get_image', filename=image) }}" alt="{{ image }}">
-                <div class="actions">
-                    <span class="filename">{{ image }}</span>
-                    <div class="buttons">
-                        <a href="{{ url_for('download_image', filename=image) }}" class="btn download">Download</a>
-                        <form action="{{ url_for('delete_image', filename=image) }}" method="POST" onsubmit="return confirm('Delete this image?');">
-                            <button type="submit" class="btn delete">Delete</button>
-                        </form>
+        {% for image in images %}
+        <div class="card" id="card-{{ loop.index }}">
+            <input type="checkbox" class="select-checkbox" data-filename="{{ image }}" onchange="updateSelection()">
+            <img src="{{ url_for('serve_image', filename=image) }}" alt="{{ image }}">
+            <div class="actions">
+                <span class="filename">{{ image }}</span>
+                <div class="buttons">
+                    <a href="{{ url_for('serve_image', filename=image) }}" download class="btn download">Save</a>
+                    <button onclick="deleteImage('{{ image }}')" class="btn delete">Drop</button>
                     </div>
-                </div>
-            </div>
-            {% endfor %}
+                    </div>
+                    </div>
         {% else %}
-            <div class="empty">
-                <p>No images captured yet. Files expected in <code>Captured/</code></p>
+        <div class="empty">
+            <p>Your mathematical journey hasn't started yet. Capture some moments!</p>
             </div>
-        {% endif %}
+        {% endfor %}
     </main>
+<script>
+    function updateSelection() {
+        const selected = document.querySelectorAll('.select-checkbox:checked');
+        const batchActions = document.getElementById('batch-actions');
+        const countSpan = document.getElementById('select-count');
+
+        if (selected.length > 0) {
+            batchActions.style.display = 'block';
+            countSpan.textContent = selected.length;
+        } else {
+            batchActions.style.display = 'none';
+        }
+    }
+
+    async function deleteImage(filename) {
+        if (!confirm(`Discard this proof? ${filename}`)) return;
+
+        try {
+            const response = await fetch(`/delete/${filename}`, { method: 'POST' });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Deletion failed.');
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function deleteSelected() {
+        const selected = Array.from(document.querySelectorAll('.select-checkbox:checked'))
+            .map(cb => cb.dataset.filename);
+
+        if (selected.length === 0) return;
+        if (!confirm(`Discard all ${selected.length} selected proofs?`)) return;
+
+        try {
+            const response = await fetch('/delete-batch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filenames: selected })
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Batch deletion failed.');
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+</script>
 </body>
 </html>
