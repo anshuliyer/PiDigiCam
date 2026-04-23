@@ -6,6 +6,7 @@ import numpy as np
 import mmap
 from picamera2 import Picamera2
 from PIL import Image, ImageDraw
+import subprocess
 from UI import ui_top
 from IO import keyboard_gpio_stubs as io_stubs
 
@@ -159,6 +160,8 @@ def run(config=None):
     config.setdefault("show_gallery", False)
     config.setdefault("gallery_idx", 0)
     config.setdefault("photo_dir", "../../Captured")
+    config.setdefault("is_connected", False)
+    config.setdefault("server_proc", None)
     
     comp_grid = grid_settings.CompositionGrid()
     
@@ -278,6 +281,25 @@ def run(config=None):
                                         config["submenu_index"] = grid_options.index(config["grid_mode"])
                                     except ValueError:
                                         config["submenu_index"] = 0
+                                elif selected == "Connect":
+                                    # Toggle Flask Server
+                                    if not config.get("is_connected"):
+                                        print("[SYSTEM] Starting Flask server...")
+                                        try:
+                                            # Run from our directory
+                                            cmd = [sys.executable, "connectivity/server.py"]
+                                            proc = subprocess.Popen(cmd, cwd=os.path.dirname(__file__))
+                                            config["server_proc"] = proc
+                                            config["is_connected"] = True
+                                        except Exception as e:
+                                            print(f"[ERROR] Failed to start server: {e}")
+                                    else:
+                                        print("[SYSTEM] Stopping Flask server...")
+                                        proc = config.get("server_proc")
+                                        if proc:
+                                            proc.terminate()
+                                            config["server_proc"] = None
+                                        config["is_connected"] = False
                                 elif selected == "Flash":
                                     config["flash"] = not config.get("flash", False)
                             else:
@@ -295,6 +317,8 @@ def run(config=None):
                     
                     time.sleep(max(0, (1.0 / FPS_CAP) - (time.time() - loop_start)))
     except KeyboardInterrupt:
+        if config.get("server_proc"):
+            config["server_proc"].terminate()
         picam2.stop()
 
 if __name__ == "__main__":

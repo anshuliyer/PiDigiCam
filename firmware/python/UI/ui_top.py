@@ -99,8 +99,61 @@ class TopPanel:
         draw.text((w//2 - 40, h-35), "Exit: [G]", fill=self.MAUVE)
 
     def _draw_menu(self, draw):
-        # ... (keep existing _draw_menu)
-        pass
+        """
+        Draws the settings menu list or a submenu with a Mauve background.
+        """
+        w, h = self.screen_res
+        menu_w, menu_h = 240, 220
+        x, y = (w - menu_w) // 2, (h - menu_h) // 2
+        
+        # Mauve background box
+        draw.rectangle([x, y, x + menu_w, y + menu_h], fill=self.MAUVE, outline=(255, 255, 255), width=2)
+        
+        show_submenu = self.config.get("show_submenu", False)
+        current_submenu = self.config.get("current_submenu", "Modes")
+        
+        if not show_submenu:
+            # Main Menu - Replaced LightMeter with Connect
+            items = ["Modes", "Connect", "Flash", "Grid"]
+            selected_idx = self.config.get("menu_index", 0)
+            title = "SETTINGS"
+        elif current_submenu == "Modes":
+            # Modes Submenu
+            items = ["Standard", "Wide-angle", "Summer", "Bokeh", "Kodak", "Cyberpunk", "Champagne"]
+            selected_idx = self.config.get("submenu_index", 0)
+            title = "SELECT MODE"
+        elif current_submenu == "Grid":
+            # Grid Submenu
+            items = ["OFF", "3x3", "Euclid"]
+            selected_idx = self.config.get("submenu_index", 0)
+            title = "SELECT GRID"
+        else:
+            items = []
+            selected_idx = 0
+            title = "UNKNOWN"
+        
+        # Title
+        draw.text((x + 10, y + 5), title, fill=(0, 0, 0))
+        draw.line([(x, y + 20), (x + menu_w, y + 20)], fill=(255, 255, 255), width=1)
+
+        for i, item in enumerate(items):
+            text_x = x + 30
+            text_y = y + 28 + i*25
+            
+            # Highlight selected item
+            if i == selected_idx:
+                draw.text((x + 10, text_y), "*", fill=(0, 0, 0))
+                draw.text((text_x, text_y), item, fill=(0, 0, 0))
+                
+                # Special indicator for Connect state
+                if item == "Connect":
+                    status = "(ON)" if self.config.get("is_connected") else "(OFF)"
+                    draw.text((text_x + 80, text_y), status, fill=(0, 0, 0))
+            else:
+                draw.text((text_x, text_y), item, fill=(60, 60, 60))
+                if item == "Connect":
+                    status = "(ON)" if self.config.get("is_connected") else "(OFF)"
+                    draw.text((text_x + 80, text_y), status, fill=(60, 60, 60))
 
     def _draw_bin_icon(self, draw):
         """

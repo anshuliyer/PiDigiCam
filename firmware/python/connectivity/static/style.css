@@ -1,0 +1,122 @@
+:root {
+    --mauve: #E0B0FF;
+    --bg-dark: #121212;
+    --card-bg: #1E1E1E;
+    --text-main: #FFFFFF;
+    --text-dim: #A0A0A0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+}
+
+h1 {
+    color: var(--mauve);
+    margin: 0;
+    font-weight: 300;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    margin: 10px 0;
+    color: var(--text-dim);
+    font-size: 1.2rem;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #333;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: var(--mauve);
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.actions {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filename {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    word-break: break-all;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    text-align: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+.download {
+    background-color: var(--mauve);
+    color: #000;
+}
+
+.delete {
+    background-color: #ff4444;
+    color: white;
+}
+
+.empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px;
+    color: var(--text-dim);
+}
