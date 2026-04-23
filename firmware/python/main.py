@@ -11,6 +11,8 @@ from IO import keyboard_gpio_stubs as io_stubs
 
 # Filters
 from filters import italian_summer, bokeh, kodak, cyberpunk, champagne
+# Settings and Grids
+from settings import grid as grid_settings
 
 # Config
 FB_DEVICE = "/dev/fb1" 
@@ -76,16 +78,8 @@ class StandardMode(CameraMode):
             return pil_img.crop((0, top, w, bottom))
 
     def process_frame(self, frame):
-        # Show grid for standard mode
-        img = Image.fromarray(frame)
-        draw = ImageDraw.Draw(img)
-        w, h = SCREEN_RES
-        color = (60, 60, 60)
-        draw.line([(w//3, 0), (w//3, h)], fill=color, width=1)
-        draw.line([(2*w//3, 0), (2*w//3, h)], fill=color, width=1)
-        draw.line([(0, h//3), (w, h//3)], fill=color, width=1)
-        draw.line([(0, 2*h//3), (w, 2*h//3)], fill=color, width=1)
-        return np.array(img)
+        # Standard mode now relies on the global toggleable grid
+        return frame
 
 class WideAngleMode(CameraMode):
     def __init__(self):
@@ -160,7 +154,8 @@ def run(config=None):
         FilterMode("Cyberpunk", cyberpunk),
         FilterMode("Champagne", champagne)
     ]
-    config.setdefault("mode_idx", 0)
+    config.setdefault("grid_mode", grid_settings.CompositionGrid.OFF)
+    comp_grid = grid_settings.CompositionGrid()
     
     panel = ui_top.TopPanel(config, SCREEN_RES)
     kbd = io_stubs.KeyboardInterface()
@@ -177,6 +172,12 @@ def run(config=None):
                     frame = picam2.capture_array()
                     if frame is not None:
                         frame = current_mode.process_frame(frame)
+                        
+                        # Apply Compositional Grid if enabled
+                        pil_img = Image.fromarray(frame)
+                        pil_img = comp_grid.apply(pil_img, config["grid_mode"])
+                        frame = np.array(pil_img)
+                        
                         frame = panel.render(frame)
                         display_to_map(frame, fb_map)
                     
@@ -205,12 +206,29 @@ def run(config=None):
                                 selected = items[config["menu_index"]]
                                 if selected == "Modes":
                                     config["show_submenu"] = True
+                                    config["current_submenu"] = "Modes"
+                                    config["submenu_index"] = config.get("mode_idx", 0)
+                                elif selected == "Grid":
+                                    config["show_submenu"] = True
+                                    config["current_submenu"] = "Grid"
+                                    # Find current grid index
+                                    grid_options = ["OFF", "3x3", "Euclid"]
+                                    try:
+                                        config["submenu_index"] = grid_options.index(config["grid_mode"])
+                                    except ValueError:
+                                        config["submenu_index"] = 0
                                 elif selected == "Flash":
                                     config["flash"] = not config.get("flash", False)
                             else:
-                                # In Modes Submenu
-                                config["mode_idx"] = config["submenu_index"]
-                                print(f"[SYSTEM] Mode changed to {modes[config['mode_idx']].name}")
+                                current_submenu = config.get("current_submenu")
+                                if current_submenu == "Modes":
+                                    config["mode_idx"] = config["submenu_index"]
+                                    print(f"[SYSTEM] Mode changed to {modes[config['mode_idx']].name}")
+                                elif current_submenu == "Grid":
+                                    grid_options = ["OFF", "3x3", "Euclid"]
+                                    config["grid_mode"] = grid_options[config["submenu_index"]]
+                                    print(f"[SYSTEM] Grid changed to {config['grid_mode']}")
+                                
                                 config["show_submenu"] = False
                                 config["show_menu"] = False # Close menu on select
                     

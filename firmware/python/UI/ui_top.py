@@ -72,31 +72,42 @@ class TopPanel:
         Draws the settings menu list or a submenu with a Mauve background.
         """
         w, h = self.screen_res
-        menu_w, menu_h = 240, 220 # Increased height for more modes
+        menu_w, menu_h = 240, 220
         x, y = (w - menu_w) // 2, (h - menu_h) // 2
         
         # Mauve background box
         draw.rectangle([x, y, x + menu_w, y + menu_h], fill=self.MAUVE, outline=(255, 255, 255), width=2)
         
         show_submenu = self.config.get("show_submenu", False)
+        current_submenu = self.config.get("current_submenu", "Modes")
         
         if not show_submenu:
             # Main Menu
             items = ["Modes", "LightMeter", "Flash", "Grid"]
             selected_idx = self.config.get("menu_index", 0)
-        else:
+            title = "SETTINGS"
+        elif current_submenu == "Modes":
             # Modes Submenu
             items = ["Standard", "Wide-angle", "Summer", "Bokeh", "Kodak", "Cyberpunk", "Champagne"]
             selected_idx = self.config.get("submenu_index", 0)
+            title = "SELECT MODE"
+        elif current_submenu == "Grid":
+            # Grid Submenu
+            items = ["OFF", "3x3", "Euclid"]
+            selected_idx = self.config.get("submenu_index", 0)
+            title = "SELECT GRID"
+        else:
+            items = []
+            selected_idx = 0
+            title = "UNKNOWN"
         
         # Title
-        title = "SETTINGS" if not show_submenu else "SELECT MODE"
         draw.text((x + 10, y + 5), title, fill=(0, 0, 0))
         draw.line([(x, y + 20), (x + menu_w, y + 20)], fill=(255, 255, 255), width=1)
 
         for i, item in enumerate(items):
             text_x = x + 30
-            text_y = y + 28 + i*25 # Tighter spacing
+            text_y = y + 28 + i*25
             
             # Highlight selected item
             if i == selected_idx:

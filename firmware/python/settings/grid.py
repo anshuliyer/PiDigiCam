@@ -1,89 +1,64 @@
-import time
-import sys
-import select
 import numpy as np
-import mmap
-from picamera2 import Picamera2
 from PIL import Image, ImageDraw
 
-# Config
-FB_DEVICE = "/dev/fb1" 
-SCREEN_RES = (480, 320)
-FPS_CAP = 3  # Keeps SPI bus stable
+class CompositionGrid:
+    """
+    Handles drawing compositional grids (3x3, Golden Ratio/Euclid) on PIL images.
+    """
+    OFF = "OFF"
+    GRID_3x3 = "3x3"
+    EUCLID = "Euclid"
 
-picam2 = Picamera2()
+    def __init__(self, color=(60, 60, 60), width=1):
+        self.color = color
+        self.width = width
 
-def start_preview():
-    config = picam2.create_video_configuration(main={"size": SCREEN_RES, "format": "RGB888"})
-    picam2.configure(config)
-    picam2.start()
+    def apply(self, pil_img, mode):
+        """
+        Applies the selected grid mode to the PIL image.
+        """
+        if mode == self.OFF or not mode:
+            return pil_img
+        
+        draw = ImageDraw.Draw(pil_img)
+        w, h = pil_img.size
 
-def display_to_map(data_array, fb_map):
-    # Convert RGB888 to RGB565 (Little Endian for tft35a)
-    r = data_array[:, :, 0].astype(np.uint16)
-    g = data_array[:, :, 1].astype(np.uint16)
-    b = data_array[:, :, 2].astype(np.uint16)
-    
-    # Swap R and B if colors look blue/red inverted
-    rgb565 = ((b >> 3) << 11) | ((g >> 2) << 5) | (r >> 3)
-    
-    fb_map.seek(0)
-    fb_map.write(rgb565.tobytes())
+        if mode == self.GRID_3x3:
+            # Rule of Thirds
+            # Vertical
+            draw.line([(w // 3, 0), (w // 3, h)], fill=self.color, width=self.width)
+            draw.line([(2 * w // 3, 0), (2 * w // 3, h)], fill=self.color, width=self.width)
+            # Horizontal
+            draw.line([(0, h // 3), (w, h // 3)], fill=self.color, width=self.width)
+            draw.line([(0, 2 * h // 3), (w, 2 * h // 3)], fill=self.color, width=self.width)
+        
+        elif mode == self.EUCLID:
+            # Phi Grid (Golden Ratio: 1 : 0.618 : 1)
+            # Ratios: 0.382 and 0.618
+            v1, v2 = int(w * 0.382), int(w * 0.618)
+            h1, h2 = int(h * 0.382), int(h * 0.618)
+            
+            # Vertical
+            draw.line([(v1, 0), (v1, h)], fill=self.color, width=self.width)
+            draw.line([(v2, 0), (v2, h)], fill=self.color, width=self.width)
+            # Horizontal
+            draw.line([(0, h1), (w, h1)], fill=self.color, width=self.width)
+            draw.line([(0, h2), (w, h2)], fill=self.color, width=self.width)
+            
+        return pil_img
 
-def take_photo(fb_map):
-    print("\n[SHUTTER] Capturing...")
-    picam2.stop()
-    config = picam2.create_still_configuration()
-    picam2.configure(config)
-    picam2.start()
+if __name__ == "__main__":
+    # Simple standalone verification (Mocks FB/Camera if needed, but here just testing PIL)
+    print("CompositionGrid Class test...")
+    test_img = Image.new('RGB', (480, 320), color=(255, 255, 255))
+    grid = CompositionGrid()
     
-    time.sleep(1)
-    filename = f"capture_{int(time.time())}.jpg"
-    picam2.capture_file(filename)
+    # Test Euclid
+    res = grid.apply(test_img.copy(), CompositionGrid.EUCLID)
+    res.save("test_euclid.png")
+    print("Saved test_euclid.png")
     
-    # Review
-    img = Image.open(filename).convert("RGB").resize(SCREEN_RES)
-    display_to_map(np.array(img), fb_map)
-    time.sleep(2.0)
-    
-    picam2.stop()
-    start_preview()
-
-# --- Grid Logic ---
-def apply_grid(data_array):
-    """Draws black Rule of Thirds lines on the provided frame."""
-    img = Image.fromarray(data_array)
-    draw = ImageDraw.Draw(img)
-    w, h = SCREEN_RES
-    color = (0, 0, 0) # Black
-    
-    # Vertical lines
-    draw.line([(w//3, 0), (w//3, h)], fill=color, width=1)
-    draw.line([(2*w//3, 0), (2*w//3, h)], fill=color, width=1)
-    # Horizontal lines
-    draw.line([(0, h//3), (w, h//3)], fill=color, width=1)
-    draw.line([(0, 2*h//3), (w, 2*h//3)], fill=color, width=1)
-    
-    return np.array(img)
-
-# Main Loop
-start_preview()
-try:
-    with open(FB_DEVICE, "r+b") as f:
-        map_size = SCREEN_RES[0] * SCREEN_RES[1] * 2
-        with mmap.mmap(f.fileno(), map_size) as fb_map:
-            while True:
-                loop_start = time.time()
-                frame = picam2.capture_array()
-                if frame is not None:
-                    # Apply grid to the preview frame
-                    grid_frame = apply_grid(frame)
-                    display_to_map(grid_frame, fb_map)
-                
-                if select.select([sys.stdin], [], [], 0)[0]:
-                    sys.stdin.readline()
-                    take_photo(fb_map)
-                
-                time.sleep(max(0, (1.0 / FPS_CAP) - (time.time() - loop_start)))
-except KeyboardInterrupt:
-    picam2.stop()
+    # Test 3x3
+    res = grid.apply(test_img.copy(), CompositionGrid.GRID_3x3)
+    res.save("test_3x3.png")
+    print("Saved test_3x3.png")
