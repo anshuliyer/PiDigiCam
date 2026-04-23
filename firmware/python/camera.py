@@ -1,9 +1,9 @@
 import main
-from IO import io_top
+from IO import keyboard_gpio_stubs as io_stubs
 
 # Initialize Hardware Interfaces
-battery = io_top.BatteryManagement()
-gpio = io_top.GPIOTop()
+battery = io_stubs.BatteryManagement()
+gpio = io_stubs.GPIOTop()
 
 # UI Configuration
 CONFIG = {

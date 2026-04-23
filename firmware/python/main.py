@@ -7,7 +7,7 @@ import mmap
 from picamera2 import Picamera2
 from PIL import Image, ImageDraw
 from UI import ui_top
-from IO import io_top
+from IO import keyboard_gpio_stubs as io_stubs
 
 # Config
 FB_DEVICE = "/dev/fb1" 
@@ -62,8 +62,13 @@ def run(config=None):
     # Main Loop
     if config is None:
         config = {}
+        
+    # Initialize menu index
+    if "menu_index" not in config:
+        config["menu_index"] = 0
+        
     panel = ui_top.TopPanel(config, SCREEN_RES)
-    kbd = io_top.KeyboardInterface()
+    kbd = io_stubs.KeyboardInterface()
     start_preview()
     try:
         with open(FB_DEVICE, "r+b") as f:
@@ -82,6 +87,17 @@ def run(config=None):
                     elif key == "SPACE":
                         config["show_menu"] = not config.get("show_menu", False)
                         print(f"[SYSTEM] Settings menu: {'OPEN' if config['show_menu'] else 'CLOSED'}")
+                    elif key == "UP":
+                        if config.get("show_menu"):
+                            config["menu_index"] = (config["menu_index"] - 1) % 4
+                    elif key == "DOWN":
+                        if config.get("show_menu"):
+                            config["menu_index"] = (config["menu_index"] + 1) % 4
+                    elif key == "SELECT":
+                        if config.get("show_menu"):
+                            items = ["Mode", "LightMeter", "Flash", "Grid"]
+                            selected = items[config["menu_index"]]
+                            print(f"[SYSTEM] Selected: {selected}")
                     
                     time.sleep(max(0, (1.0 / FPS_CAP) - (time.time() - loop_start)))
     except KeyboardInterrupt:
