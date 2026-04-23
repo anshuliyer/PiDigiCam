@@ -173,6 +173,15 @@ def run(config=None):
     config.setdefault("submenu_index", 0)
     config.setdefault("show_menu", False)
     config.setdefault("show_submenu", False)
+    
+    # Handle terminal-based WiFi SSID/Pass
+    if len(sys.argv) > 1:
+        config["wifi_ssid"] = sys.argv[1]
+        if len(sys.argv) > 2:
+            config["wifi_pass"] = sys.argv[2]
+        print(f"[SYSTEM] WiFi Credentials set via terminal: {config['wifi_ssid']}")
+
+    config.setdefault("wifi_state", None)
     config.setdefault("wifi_state", None)
     config.setdefault("wifi_message", "")
     config.setdefault("grid_mode", "OFF")
@@ -344,8 +353,13 @@ def run(config=None):
                                         config["submenu_index"] = 0
                                 elif selected == "Connect":
                                     if not config.get("is_connected"):
-                                        print("[SYSTEM] Entering WiFi Scan Mode...")
-                                        config["wifi_state"] = "SCANNING"
+                                        if config.get("wifi_ssid"):
+                                            print(f"[SYSTEM] Connecting to {config['wifi_ssid']} (Terminal Config)...")
+                                            config["wifi_state"] = "CONNECTING"
+                                            threading.Thread(target=wifi_connect_worker, args=(config,), daemon=True).start()
+                                        else:
+                                            print("[SYSTEM] Entering WiFi Scan Mode...")
+                                            config["wifi_state"] = "SCANNING"
                                         config["show_menu"] = False
                                         config["show_submenu"] = False
                                     else:
