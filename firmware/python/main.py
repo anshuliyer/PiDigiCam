@@ -232,27 +232,39 @@ def run(config=None):
                         
                         frame = panel.render(frame)
                         display_to_map(frame, fb_map)
-                        elif config.get("wifi_state") == "SCANNING":
-                            frame = picam2.capture_array()
-                            if frame is not None:
-                                qr_text = qr_scanner.scan_frame(frame)
-                                if qr_text:
-                                    ssid, password = wifi_utils.parse_wifi_qr(qr_text)
-                                    if ssid:
-                                        config["wifi_state"] = "CONNECTING"
-                                        config["wifi_ssid"] = ssid
-                                        config["wifi_pass"] = password
-                                        threading.Thread(target=wifi_connect_worker, args=(config,), daemon=True).start()
-                                
-                                frame = panel.render(frame)
-                                display_to_map(frame, fb_map)
-                        elif config.get("wifi_state") == "CONNECTING":
-                            # Connect screen handled in render
-                            frame = np.zeros((SCREEN_RES[1], SCREEN_RES[0], 3), dtype=np.uint8)
+                    elif config.get("wifi_state") == "SCANNING":
+                        frame = picam2.capture_array()
+                        if frame is not None:
+                            qr_text = qr_scanner.scan_frame(frame)
+                            if qr_text:
+                                ssid, password = wifi_utils.parse_wifi_qr(qr_text)
+                                if ssid:
+                                    config["wifi_state"] = "CONNECTING"
+                                    config["wifi_ssid"] = ssid
+                                    config["wifi_pass"] = password
+                                    threading.Thread(target=wifi_connect_worker, args=(config,), daemon=True).start()
+                            
                             frame = panel.render(frame)
                             display_to_map(frame, fb_map)
-                        else:
-                            # Camera Mode
+                    elif config.get("wifi_state") == "CONNECTING":
+                        # Connect screen handled in render
+                        frame = np.zeros((SCREEN_RES[1], SCREEN_RES[0], 3), dtype=np.uint8)
+                        frame = panel.render(frame)
+                        display_to_map(frame, fb_map)
+                    else:
+                        # Camera Mode
+                        current_mode = modes[config["mode_idx"]]
+                        frame = picam2.capture_array()
+                        if frame is not None:
+                            frame = current_mode.process_frame(frame)
+                            
+                            # Apply Compositional Grid if enabled
+                            pil_img = Image.fromarray(frame)
+                            pil_img = comp_grid.apply(pil_img, config["grid_mode"])
+                            frame = np.array(pil_img)
+                            
+                            frame = panel.render(frame)
+                            display_to_map(frame, fb_map)
                     
                     key = kbd.get_input()
                     if key == "ENTER":
