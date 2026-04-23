@@ -231,6 +231,24 @@ def run(config=None):
                                 config["menu_index"] = (config["menu_index"] + 1) % 4
                             else:
                                 config["submenu_index"] = (config["submenu_index"] + 1) % len(modes)
+                        elif config.get("show_gallery"):
+                            # Delete logic for gallery (X key)
+                            photo_dir = config.get("photo_dir", "../../Captured")
+                            files = sorted([f for f in os.listdir(photo_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png'))])
+                            if files:
+                                idx = config["gallery_idx"] % len(files)
+                                img_path = os.path.join(photo_dir, files[idx])
+                                try:
+                                    print(f"[SYSTEM] Deleting {img_path}...")
+                                    os.remove(img_path)
+                                    # Refresh list and adjust idx
+                                    files.pop(idx)
+                                    if not files:
+                                        config["gallery_idx"] = 0
+                                    else:
+                                        config["gallery_idx"] = idx % len(files)
+                                except Exception as e:
+                                    print(f"[ERROR] Deleting file: {e}")
                     elif key == "GALLERY":
                         config["show_gallery"] = not config.get("show_gallery", False)
                         config["show_menu"] = False

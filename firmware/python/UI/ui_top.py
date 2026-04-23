@@ -102,6 +102,21 @@ class TopPanel:
         # ... (keep existing _draw_menu)
         pass
 
+    def _draw_bin_icon(self, draw):
+        """
+        Draws a small trash bin icon in the top-left corner.
+        """
+        x, y = self.padding, self.padding
+        # Draw a simple bin: a rectangle with a lid
+        draw.rectangle([x, y+4, x+12, y+16], outline=self.MAUVE, width=2)
+        draw.line([(x-2, y+4), (x+14, y+4)], fill=self.MAUVE, width=2)
+        draw.rectangle([x+3, y, x+9, y+3], outline=self.MAUVE, width=1)
+        # Vertical lines in bin
+        draw.line([(x+4, y+8), (x+4, y+14)], fill=self.MAUVE, width=1)
+        draw.line([(x+8, y+8), (x+8, y+14)], fill=self.MAUVE, width=1)
+        
+        draw.text((x + 18, y), "[X] Delete", fill=self.MAUVE)
+
     def render(self, frame):
         """
         Applies the UI overlay to the provided frame.
@@ -112,6 +127,7 @@ class TopPanel:
         show_gallery = self.config.get("show_gallery", False)
         
         if show_gallery:
+            self._draw_bin_icon(draw)
             self._draw_gallery_view(draw, None)
         else:
             x_base, y_base = self._calculate_base_pos()
