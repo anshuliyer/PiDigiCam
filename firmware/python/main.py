@@ -266,7 +266,7 @@ def run(config=None):
                     elif key == "SELECT":
                         if config.get("show_menu"):
                             if not config.get("show_submenu"):
-                                items = ["Modes", "LightMeter", "Flash", "Grid"]
+                                items = ["Modes", "Connect", "Flash", "Grid"]
                                 selected = items[config["menu_index"]]
                                 if selected == "Modes":
                                     config["show_submenu"] = True
