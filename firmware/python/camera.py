@@ -1,9 +1,14 @@
 import main
+from IO import io_top
+
+# Initialize Hardware Interfaces
+battery = io_top.BatteryManagement()
+gpio = io_top.GPIOTop()
 
 # UI Configuration
 CONFIG = {
-    "flash": True,      # Flash switchable (ON right now)
-    "battery": None,    # Placeholder
+    "flash": gpio.flash_setting,      # Flash switchable (ON right now)
+    "battery": battery.battery_level, # Battery status
     "wifi": None,       # Placeholder
     "photo_dir": "../../Captured",
     "ui_rotation": 0,    # Rotation in degrees (0, 90, 180, 270)
