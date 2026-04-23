@@ -154,6 +154,7 @@ def run(config=None):
         FilterMode("Cyberpunk", cyberpunk),
         FilterMode("Champagne", champagne)
     ]
+    config.setdefault("mode_idx", 0)
     config.setdefault("grid_mode", grid_settings.CompositionGrid.OFF)
     comp_grid = grid_settings.CompositionGrid()
     
