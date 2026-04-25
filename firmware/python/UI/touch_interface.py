@@ -109,14 +109,23 @@ class TouchInterface:
             btn_h = (h - 100) // rows
             
             # Calculate clicked col/row
-            col = int((x - 20) // btn_w)
-            row = int((y - 70) // btn_h)
+            rel_x = x - 20
+            rel_y = y - 70
+            
+            col = int(rel_x // btn_w)
+            row = int(rel_y // btn_h)
             
             if 0 <= col < cols and 0 <= row < rows:
-                idx = row * cols + col
-                if idx < max_items:
-                    ui_state["touch_menu_idx"] = idx
-                    return "TOUCH_SELECT", x, y
+                # Calculate internal button coordinates to check for margins
+                btn_local_x = rel_x % btn_w
+                btn_local_y = rel_y % btn_h
+                
+                # Only select if tap is not in the 10px dead-zone between buttons
+                if 10 < btn_local_x < btn_w - 10 and 10 < btn_local_y < btn_h - 10:
+                    idx = row * cols + col
+                    if idx < max_items:
+                        ui_state["touch_menu_idx"] = idx
+                        return "TOUCH_SELECT", x, y
 
         # 4. Connection Overlay Close
         if ui_state.get("show_connection_view"):
