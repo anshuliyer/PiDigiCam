@@ -50,7 +50,9 @@ class TouchInterface:
                         self.touch_active = True
                     else: # Touch release
                         self.touch_active = False
-                        return self._map_to_command(self.last_x, self.last_y, ui_state)
+                        cmd, x, y = self._map_to_command(self.last_x, self.last_y, ui_state)
+                        print(f"[DEBUG] Touch: Raw({self.last_x}, {self.last_y}) -> Mapped({int(x)}, {int(y)}) -> CMD: {cmd}")
+                        return cmd
         except Exception as e:
             pass
         return None
@@ -79,11 +81,11 @@ class TouchInterface:
 
         # 1. Menu Toggle (Bottom Right)
         if x > w - 80 and y > h - 80:
-            return "SPACE"
+            return "SPACE", x, y
         
         # 2. Gallery Toggle (Bottom Left)
         if x < 80 and y > h - 80:
-            return "GALLERY"
+            return "GALLERY", x, y
 
         # 3. Mode Selection / Menu Interaction
         if ui_state.get("show_menu"):
@@ -91,32 +93,30 @@ class TouchInterface:
             menu_w, menu_h = 240, 220
             menu_x, menu_y = (w - menu_w) // 2, (h - menu_h) // 2
             if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h:
-                return "BACK"
+                return "BACK", x, y
             
             # Click items
             rel_y = y - (menu_y + 28)
             if 0 <= rel_y <= 180: 
                 idx = int(rel_y // 25)
                 ui_state["touch_menu_idx"] = idx
-                return "TOUCH_SELECT"
+                return "TOUCH_SELECT", x, y
 
         # 4. Gallery Mode
         if ui_state.get("show_gallery"):
             if x < 80 and y < 80: # Delete icon (Top Left)
-                return "DOWN" 
+                return "DOWN", x, y 
             if y < 60: # Top bar back
-                return "BACK"
+                return "BACK", x, y
             if x < w // 2:
-                return "LEFT"
+                return "LEFT", x, y
             else:
-                return "RIGHT"
+                return "RIGHT", x, y
 
         # 5. Capture (Restrict to central area when no menu/gallery)
         if not ui_state.get("show_menu") and not ui_state.get("show_gallery"):
             # Central 70% of screen
             if 60 < x < w - 60 and 60 < y < h - 60:
-                return "ENTER"
+                return "ENTER", x, y
 
-        return None
-
-        return None
+        return None, x, y
