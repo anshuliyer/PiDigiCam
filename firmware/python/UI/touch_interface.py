@@ -90,17 +90,17 @@ class TouchInterface:
 
         # 3. Mode Selection / Menu Interaction
         if ui_state.get("show_menu"):
-            menu_w, menu_h = 240, 220
+            menu_w, menu_h = 320, 260
             menu_x, menu_y = (w - menu_w) // 2, (h - menu_h) // 2
             
             # Close menu if clicking outside or near top
-            if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h or y < 70:
+            if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h or y < 60:
                 return "BACK", x, y
             
             # Click items
-            rel_y = y - (menu_y + 30) # Items start roughly at y + 30
-            if 0 <= rel_y <= 180: 
-                idx = int(rel_y // 25)
+            rel_y = y - (menu_y + 35) # Items start at y + 35
+            if 0 <= rel_y <= 220: 
+                idx = int(rel_y // 32) # Spacing is 32
                 
                 # Determine max items based on menu state
                 max_items = 4 # Main menu
@@ -114,7 +114,15 @@ class TouchInterface:
                     ui_state["touch_menu_idx"] = idx
                     return "TOUCH_SELECT", x, y
 
-        # 4. Gallery Mode
+        # 4. Connection Overlay Close
+        if ui_state.get("show_connection_view"):
+            overlay_w, overlay_h = 300, 240
+            ox, oy = (w - overlay_w) // 2, (h - overlay_h) // 2
+            # Close button area (Top Right of overlay) or tapping outside
+            if (x > ox + overlay_w - 50 and y < oy + 50) or (x < ox or x > ox + overlay_w or y < oy or y > oy + overlay_h):
+                return "BACK", x, y
+
+        # 5. Gallery Mode
         if ui_state.get("show_gallery"):
             if x < 85 and y < 85: # Delete icon (Top Left)
                 return "DOWN", x, y 
@@ -125,8 +133,8 @@ class TouchInterface:
             else:
                 return "RIGHT", x, y
 
-        # 5. Capture (Center of screen when no menu/gallery)
-        if not ui_state.get("show_menu") and not ui_state.get("show_gallery"):
+        # 6. Capture (Center of screen when no menu/gallery/connection)
+        if not ui_state.get("show_menu") and not ui_state.get("show_gallery") and not ui_state.get("show_connection_view"):
             # Central area (Avoid edges where icons are)
             if 80 < x < w - 80 and 80 < y < h - 80:
                 return "ENTER", x, y

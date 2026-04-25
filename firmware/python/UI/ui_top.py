@@ -103,7 +103,7 @@ class TopPanel:
         Draws the settings menu list or a submenu with a Mauve background.
         """
         w, h = self.screen_res
-        menu_w, menu_h = 240, 220
+        menu_w, menu_h = 320, 260
         x, y = (w - menu_w) // 2, (h - menu_h) // 2
         
         # Mauve background box
@@ -137,27 +137,28 @@ class TopPanel:
             title = "UNKNOWN"
         
         # Title
-        draw.text((x + 10, y + 5), title, fill=(0, 0, 0))
-        draw.line([(x, y + 20), (x + menu_w, y + 20)], fill=(255, 255, 255), width=1)
+        draw.text((x + 15, y + 8), title, fill=(0, 0, 0))
+        draw.line([(x, y + 25), (x + menu_w, y + 25)], fill=(255, 255, 255), width=1)
 
+        item_spacing = 32
         for i, item in enumerate(items):
-            text_x = x + 30
-            text_y = y + 28 + i*25
+            text_x = x + 40
+            text_y = y + 35 + i * item_spacing
             
             # Highlight selected item
             if i == selected_idx:
-                draw.text((x + 10, text_y), "*", fill=(0, 0, 0))
+                draw.text((x + 15, text_y), ">", fill=(0, 0, 0))
                 draw.text((text_x, text_y), item, fill=(0, 0, 0))
                 
                 # Special indicator for Connect state
                 if item == "Connect":
                     status = "(ON)" if self.config.get("is_connected") else "(OFF)"
-                    draw.text((text_x + 80, text_y), status, fill=(0, 0, 0))
+                    draw.text((text_x + 100, text_y), status, fill=(0, 0, 0))
             else:
                 draw.text((text_x, text_y), item, fill=(60, 60, 60))
                 if item == "Connect":
                     status = "(ON)" if self.config.get("is_connected") else "(OFF)"
-                    draw.text((text_x + 80, text_y), status, fill=(60, 60, 60))
+                    draw.text((text_x + 100, text_y), status, fill=(60, 60, 60))
 
     def _draw_bin_icon(self, draw):
         """
@@ -185,6 +186,10 @@ class TopPanel:
         # Transparent-ish background box
         draw.rectangle([x, y, x + overlay_w, y + overlay_h], fill=(0, 0, 0), outline=self.MAUVE, width=3)
         
+        # Close Button (Top Right of overlay)
+        draw.rectangle([x + overlay_w - 40, y + 5, x + overlay_w - 5, y + 30], outline=self.MAUVE, width=2)
+        draw.text((x + overlay_w - 32, y + 10), "X", fill=self.MAUVE)
+
         # Title
         draw.text((x + 20, y + 15), "CONNECTIVITY ACTIVE", fill=self.MAUVE)
         
@@ -205,7 +210,7 @@ class TopPanel:
 
         # Instructions
         draw.text((x + 20, y + overlay_h - 40), "Scan to browse images", fill=self.MAUVE)
-        draw.text((x + 20, y + overlay_h - 20), "[X] BACK to preview", fill=self.MAUVE)
+        draw.text((x + 20, y + overlay_h - 20), "Tap [X] or edges to close", fill=self.MAUVE)
 
     def render(self, frame):
         """
