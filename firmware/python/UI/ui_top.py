@@ -140,9 +140,13 @@ class TopPanel:
             font_title = None
             font_item = None
 
-        # Title at the top
+        # Title at the top - Now a giant BACK button
         title_w = draw.textlength(title, font=font_title) if hasattr(draw, "textlength") else len(title) * 14
-        draw.text(((w - title_w) // 2, 25), title, fill=self.MAUVE, font=font_title)
+        draw.text(((w - title_w) // 2, 15), title, fill=self.MAUVE, font=font_title)
+        
+        # Back Hint
+        draw.text((30, 20), "< BACK", fill=self.MAUVE, font=font_item)
+        draw.line([(overlay_margin, 60), (w - overlay_margin, 60)], fill=self.MAUVE, width=1)
         
         # Calculate Grid Layout
         num_items = len(items)
@@ -156,14 +160,14 @@ class TopPanel:
             rows = 2
 
         btn_w = (w - 40) // cols
-        btn_h = (h - 100) // rows
+        btn_h = (h - 110) // rows
         
         for i, item in enumerate(items):
             row = i // cols
             col = i % cols
             
             bx = 20 + col * btn_w
-            by = 70 + row * btn_h
+            by = 80 + row * btn_h
             
             # Button Box
             is_selected = (i == selected_idx)

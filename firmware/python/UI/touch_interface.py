@@ -90,8 +90,8 @@ class TouchInterface:
 
         # 3. Grid Menu Interaction
         if ui_state.get("show_menu"):
-            # Close menu if clicking near edges
-            if x < 15 or x > w - 15 or y < 15 or y > h - 15 or y < 65:
+            # 1. Back/Close Button Area (Top 80px or very edges)
+            if y < 80 or x < 10 or x > w - 10 or y > h - 10:
                 return "BACK", x, y
             
             # Determine grid dims
@@ -110,7 +110,7 @@ class TouchInterface:
             
             # Calculate clicked col/row
             rel_x = x - 20
-            rel_y = y - 70
+            rel_y = y - 80 # Adjusted for larger back area
             
             col = int(rel_x // btn_w)
             row = int(rel_y // btn_h)
@@ -120,8 +120,8 @@ class TouchInterface:
                 btn_local_x = rel_x % btn_w
                 btn_local_y = rel_y % btn_h
                 
-                # Only select if tap is not in the 10px dead-zone between buttons
-                if 10 < btn_local_x < btn_w - 10 and 10 < btn_local_y < btn_h - 10:
+                # Smaller 5px dead-zone for better sensitivity
+                if 5 < btn_local_x < btn_w - 5 and 5 < btn_local_y < btn_h - 5:
                     idx = row * cols + col
                     if idx < max_items:
                         ui_state["touch_menu_idx"] = idx
