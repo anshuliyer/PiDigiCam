@@ -103,7 +103,7 @@ class TopPanel:
         Draws the settings menu list or a submenu with a Mauve background.
         """
         w, h = self.screen_res
-        menu_w, menu_h = 320, 260
+        menu_w, menu_h = 440, 300
         x, y = (w - menu_w) // 2, (h - menu_h) // 2
         
         # Mauve background box
@@ -136,10 +136,19 @@ class TopPanel:
             selected_idx = 0
             title = "UNKNOWN"
         
+        # Load a larger font for better visibility
+        from PIL import ImageFont
+        try:
+            font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 22)
+            font_item = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
+        except:
+            font_title = None
+            font_item = None
+
         # Title - Center aligned
-        title_w = draw.textlength(title) if hasattr(draw, "textlength") else len(title) * 6
-        draw.text((x + (menu_w - title_w) // 2, y + 8), title, fill=(0, 0, 0))
-        draw.line([(x, y + 25), (x + menu_w, y + 25)], fill=(255, 255, 255), width=1)
+        title_w = draw.textlength(title, font=font_title) if hasattr(draw, "textlength") else len(title) * 12
+        draw.text((x + (menu_w - title_w) // 2, y + 5), title, fill=(0, 0, 0), font=font_title)
+        draw.line([(x, y + 32), (x + menu_w, y + 32)], fill=(255, 255, 255), width=2)
 
         item_spacing = 38
         for i, item in enumerate(items):
@@ -149,17 +158,16 @@ class TopPanel:
                 status = "(ON)" if self.config.get("is_connected") else "(OFF)"
                 item_text = f"{item} {status}"
             
-            # Use a rough estimate if textlength isn't available
-            t_w = draw.textlength(item_text) if hasattr(draw, "textlength") else len(item_text) * 6
+            t_w = draw.textlength(item_text, font=font_item) if hasattr(draw, "textlength") else len(item_text) * 10
             text_x = x + (menu_w - t_w) // 2
-            text_y = y + 40 + i * item_spacing
+            text_y = y + 42 + i * item_spacing
             
-            # Highlight selected item with a subtle box
+            # Highlight selected item with a large box
             if i == selected_idx:
-                draw.rectangle([x + 10, text_y - 5, x + menu_w - 10, text_y + 20], fill=(255, 255, 255))
-                draw.text((text_x, text_y), item_text, fill=(0, 0, 0))
+                draw.rectangle([x + 5, text_y - 2, x + menu_w - 5, text_y + 28], fill=(255, 255, 255))
+                draw.text((text_x, text_y), item_text, fill=(0, 0, 0), font=font_item)
             else:
-                draw.text((text_x, text_y), item_text, fill=(40, 40, 40))
+                draw.text((text_x, text_y), item_text, fill=(40, 40, 40), font=font_item)
 
     def _draw_bin_icon(self, draw):
         """

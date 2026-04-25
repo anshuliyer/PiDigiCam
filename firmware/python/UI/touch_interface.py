@@ -90,16 +90,16 @@ class TouchInterface:
 
         # 3. Mode Selection / Menu Interaction
         if ui_state.get("show_menu"):
-            menu_w, menu_h = 320, 260
+            menu_w, menu_h = 440, 300
             menu_x, menu_y = (w - menu_w) // 2, (h - menu_h) // 2
             
             # Close menu if clicking outside or near top
-            if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h or y < 60:
+            if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h or y < 40:
                 return "BACK", x, y
             
             # Click items
-            rel_y = y - (menu_y + 40) # Items start at y + 40
-            if 0 <= rel_y <= 260: 
+            rel_y = y - (menu_y + 42) # Items start at y + 42
+            if 0 <= rel_y <= 270: 
                 idx = int(rel_y // 38) # Spacing is 38
                 
                 # Determine max items based on menu state
