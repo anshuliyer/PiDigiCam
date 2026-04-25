@@ -51,7 +51,8 @@ class TouchInterface:
                     else: # Touch release
                         self.touch_active = False
                         cmd, x, y = self._map_to_command(self.last_x, self.last_y, ui_state)
-                        print(f"[DEBUG] Touch: Raw({self.last_x}, {self.last_y}) -> Mapped({int(x)}, {int(y)}) -> CMD: {cmd}")
+                        if cmd:
+                            print(f"[TOUCH] {cmd} at ({int(x)}, {int(y)})")
                         return cmd
         except Exception as e:
             pass
@@ -79,44 +80,55 @@ class TouchInterface:
         # Hitboxes
         w, h = self.screen_res
 
-        # 1. Menu Toggle (Bottom Right)
-        if x > w - 80 and y > h - 80:
+        # 1. Menu Toggle (Bottom Right - Gear Icon)
+        if x > w - 85 and y > h - 85:
             return "SPACE", x, y
         
-        # 2. Gallery Toggle (Bottom Left)
-        if x < 80 and y > h - 80:
+        # 2. Gallery Toggle (Bottom Left - Picture Icon)
+        if x < 85 and y > h - 85:
             return "GALLERY", x, y
 
         # 3. Mode Selection / Menu Interaction
         if ui_state.get("show_menu"):
-            # Close menu if clicking outside
             menu_w, menu_h = 240, 220
             menu_x, menu_y = (w - menu_w) // 2, (h - menu_h) // 2
-            if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h:
+            
+            # Close menu if clicking outside or near top
+            if x < menu_x or x > menu_x + menu_w or y < menu_y or y > menu_y + menu_h or y < 70:
                 return "BACK", x, y
             
             # Click items
-            rel_y = y - (menu_y + 28)
+            rel_y = y - (menu_y + 30) # Items start roughly at y + 30
             if 0 <= rel_y <= 180: 
                 idx = int(rel_y // 25)
-                ui_state["touch_menu_idx"] = idx
-                return "TOUCH_SELECT", x, y
+                
+                # Determine max items based on menu state
+                max_items = 4 # Main menu
+                if ui_state.get("show_submenu"):
+                    sub = ui_state.get("current_submenu")
+                    if sub == "Modes": max_items = 7
+                    elif sub == "Grid": max_items = 3
+                    elif sub == "Connect": max_items = 3
+                
+                if idx < max_items:
+                    ui_state["touch_menu_idx"] = idx
+                    return "TOUCH_SELECT", x, y
 
         # 4. Gallery Mode
         if ui_state.get("show_gallery"):
-            if x < 80 and y < 80: # Delete icon (Top Left)
+            if x < 85 and y < 85: # Delete icon (Top Left)
                 return "DOWN", x, y 
-            if y < 60: # Top bar back
+            if y < 70: # Top bar back
                 return "BACK", x, y
             if x < w // 2:
                 return "LEFT", x, y
             else:
                 return "RIGHT", x, y
 
-        # 5. Capture (Restrict to central area when no menu/gallery)
+        # 5. Capture (Center of screen when no menu/gallery)
         if not ui_state.get("show_menu") and not ui_state.get("show_gallery"):
-            # Central 70% of screen
-            if 60 < x < w - 60 and 60 < y < h - 60:
+            # Central area (Avoid edges where icons are)
+            if 80 < x < w - 80 and 80 < y < h - 80:
                 return "ENTER", x, y
 
         return None, x, y
