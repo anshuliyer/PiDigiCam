@@ -102,6 +102,7 @@ class TopPanel:
         """
         Draws the settings menu list or a submenu with a Mauve background.
         """
+        w, h = self.screen_res
         show_submenu = self.config.get("show_submenu", False)
         current_submenu = self.config.get("current_submenu", "Modes")
         
