@@ -6,6 +6,6 @@
     "screen_width": 480,
     "screen_height": 320,
     "swap_xy": true,
-    "invert_x": false,
+    "invert_x": true,
     "invert_y": false
 }
