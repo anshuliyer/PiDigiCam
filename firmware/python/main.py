@@ -7,7 +7,7 @@ import mmap
 from picamera2 import Picamera2
 from PIL import Image, ImageDraw
 import subprocess
-from UI import ui_top
+from UI import ui_top, touch_interface
 from IO import keyboard_gpio_stubs as io_stubs
 
 # Filters
@@ -18,6 +18,12 @@ from settings import grid as grid_settings
 # Connectivity Utils
 from connectivity import wifi_utils
 import threading
+import json
+try:
+    import evdev
+    from evdev import ecodes
+except ImportError:
+    evdev = None
 
 # Config
 FB_DEVICE = "/dev/fb1" 
@@ -209,6 +215,7 @@ def run(config=None):
     
     panel = ui_top.TopPanel(config, SCREEN_RES)
     kbd = io_stubs.KeyboardInterface()
+    touch = touch_interface.TouchInterface(os.path.join(os.path.dirname(__file__), "UI/touch_settings.json"), SCREEN_RES)
     start_preview()
     
     try:
@@ -258,7 +265,20 @@ def run(config=None):
                             frame = panel.render(frame)
                             display_to_map(frame, fb_map)
                     
+                    # Process Input (Keyboard + Touch)
                     key = kbd.get_input()
+                    touch_cmd = touch.get_touch_command(config)
+                    if touch_cmd:
+                        if touch_cmd == "TOUCH_SELECT":
+                            # Handle direct item selection
+                            if not config.get("show_submenu"):
+                                config["menu_index"] = config.get("touch_menu_idx", 0) % 4
+                            else:
+                                config["submenu_index"] = config.get("touch_menu_idx", 0)
+                            key = "SELECT"
+                        else:
+                            key = touch_cmd
+
                     if key == "ENTER":
                         current_mode.capture(fb_map, config)
                     elif key == "SPACE":
