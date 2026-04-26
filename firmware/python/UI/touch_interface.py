@@ -82,8 +82,13 @@ class TouchInterface:
             return None, x, y
 
         if ui_state.get("show_gallery"):
-            if x < 85 and y < 85: return "DOWN", x, y # Delete
-            if y < 70: return "BACK", x, y
+            # 1. Delete Button (Top Left)
+            if x < 130 and y < 85: return "DOWN", x, y
+            
+            # 2. Exit Gallery (Bottom Center Pill)
+            if y > h - 60: return "BACK", x, y
+            
+            # 3. Navigation (Sides)
             return ("LEFT" if x < w // 2 else "RIGHT"), x, y
 
         # --- Layer 2: Menu System (Grid + Header) ---

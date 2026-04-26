@@ -393,7 +393,19 @@ class GalleryManager:
         """Return an RGB numpy array sized to SCREEN_RES for the current photo."""
         path = self.current_path()
         if path is None:
-            return np.zeros((SCREEN_RES[1], SCREEN_RES[0], 3), dtype=np.uint8)
+            # Return a friendly "Empty Gallery" frame instead of just black
+            from UI.themes import chalk as theme
+            img = Image.new("RGB", SCREEN_RES, theme.BG_CHARCOAL)
+            draw = ImageDraw.Draw(img)
+            msg = "EMPTY GALLERY"
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
+            except:
+                font = None
+            tw = draw.textlength(msg, font=font) if hasattr(draw, "textlength") else len(msg) * 12
+            draw.text(((SCREEN_RES[0] - tw) // 2, SCREEN_RES[1] // 2 - 10), msg, fill=(100, 100, 120), font=font)
+            return np.array(img)
+            
         try:
             pil = Image.open(path).convert("RGB").resize(SCREEN_RES, Image.LANCZOS)
             return np.array(pil)
