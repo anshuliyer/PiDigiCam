@@ -47,15 +47,13 @@ class CameraMode:
         mauve = (224, 176, 255)
         
         # 1. EuclidCam Logo (Center-Top) - Using actual logo image
-        cx, cy = w // 2, h // 2 - 40
+        cx, cy = w // 2, h // 2 - 50  # Shifted up slightly for larger logo
         try:
             # Path relative to where main.py is run from (firmware/python)
             logo_path = os.path.join(os.path.dirname(__file__), "../../splashscreen/euclid_logo.jpeg")
             logo = Image.open(logo_path).convert("RGBA") # Ensure it has alpha or can be pasted
-            # Resize logo (e.g., to 70x70)
-            logo.thumbnail((70, 70), Image.LANCZOS)
-            # Create a mask to make it circular if needed, or just paste it
-            # We'll just paste it centered
+            # Resize logo larger (120x120)
+            logo.thumbnail((120, 120), Image.LANCZOS)
             lw, lh = logo.size
             img.paste(logo, (cx - lw // 2, cy - lh // 2))
         except Exception as e:
@@ -63,23 +61,23 @@ class CameraMode:
             print(f"Could not load logo: {e}")
             try:
                 from PIL import ImageFont
-                font_logo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 35)
-                draw.text((cx-12, cy-18), "E", fill=(255, 255, 255), font=font_logo)
+                font_logo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 60)
+                draw.text((cx-20, cy-30), "E", fill=(255, 255, 255), font=font_logo)
             except:
                 pass
 
-        # 2. Main Text
+        # 2. Main Text (Larger font)
         try:
-            font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
-            tw = draw.textlength(text, font=font_text) if hasattr(draw, "textlength") else len(text) * 12
-            draw.text(((w - tw) // 2, h // 2 + 30), text, fill=(255, 255, 255), font=font_text)
+            font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 32)
+            tw = draw.textlength(text, font=font_text) if hasattr(draw, "textlength") else len(text) * 18
+            draw.text(((w - tw) // 2, h // 2 + 40), text, fill=(255, 255, 255), font=font_text)
         except:
-            draw.text((w//2 - 40, h//2 + 30), text, fill=(255, 255, 255))
+            draw.text((w//2 - 60, h//2 + 40), text, fill=(255, 255, 255))
 
-        # 3. Loading Scroll (Progress Bar)
+        # 3. Loading Scroll (Progress Bar) - Shifted lower
         if progress > 0:
-            bw, bh = 200, 8
-            bx, by = (w - bw) // 2, h // 2 + 70
+            bw, bh = 240, 10
+            bx, by = (w - bw) // 2, h // 2 + 100
             draw.rectangle([bx, by, bx + bw, by + bh], outline=(60, 60, 80), width=1)
             draw.rectangle([bx, by, bx + int(bw * progress), by + bh], fill=mauve)
 
