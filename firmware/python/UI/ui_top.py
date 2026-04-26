@@ -1,11 +1,12 @@
 import numpy as np
 from PIL import Image, ImageDraw
+from UI.themes import chalk as theme
 
 class TopPanel:
     """
     Handles drawing and rendering of the top-panel UI indicators.
     """
-    MAUVE = (224, 176, 255)
+    MAUVE = theme.MAUVE_PRIMARY
 
     def __init__(self, config, screen_res):
         self.config = config or {}
@@ -129,9 +130,26 @@ class TopPanel:
 
         # 1. Premium Glass Overlay
         overlay_margin = 8
-        # Deep translucent base
-        overlay_fill = (15, 15, 20, 235)
+        # Deep translucent base matching theme
+        overlay_fill = theme.OVERLAY_FILL
         draw.rectangle([overlay_margin, overlay_margin, w - overlay_margin, h - overlay_margin], fill=overlay_fill)
+        
+        # --- PASTE LOGO WATERMARK ---
+        try:
+            import os
+            logo_path = os.path.join(os.path.dirname(__file__), "../../splashscreen/transparent_logo.png")
+            logo = Image.open(logo_path).convert("RGBA")
+            logo.thumbnail((250, 250), Image.LANCZOS)
+            r, g, b, a = logo.split()
+            a = a.point(lambda i: i * theme.LOGO_OPACITY)
+            logo = Image.merge('RGBA', (r, g, b, a))
+            lw, lh = logo.size
+            cx, cy = w // 2, h // 2
+            # Paste onto draw._image (underlying Image object)
+            draw._image.paste(logo, (cx - lw // 2, cy - lh // 2), logo)
+        except Exception as e:
+            print(f"Theme watermark error: {e}")
+
         # Mauve Accent Border
         draw.rectangle([overlay_margin, overlay_margin, w - overlay_margin, h - overlay_margin], outline=self.MAUVE, width=2)
         

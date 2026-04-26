@@ -41,11 +41,11 @@ class CameraMode:
         """
         Draws a premium branded capture overlay with a logo and optional progress bar.
         """
-        w, h = SCREEN_RES
+        from UI.themes import chalk as theme
+        
         # Charcoal background instead of pure black
-        img = Image.new("RGB", SCREEN_RES, (30, 30, 35))
+        img = Image.new("RGB", SCREEN_RES, theme.BG_CHARCOAL)
         draw = ImageDraw.Draw(img)
-        mauve = (224, 176, 255)
         
         # 1. EuclidCam Logo (Background Watermark)
         cx, cy = w // 2, h // 2 - 30  # Centered for a large background logo
@@ -56,9 +56,9 @@ class CameraMode:
             # Resize logo to be large and prominent
             logo.thumbnail((250, 250), Image.LANCZOS)
             
-            # Reduce opacity to 12% for a very subtle, professional watermark
+            # Reduce opacity to the theme's watermark level
             r, g, b, a = logo.split()
-            a = a.point(lambda i: i * 0.12)
+            a = a.point(lambda i: i * theme.LOGO_OPACITY)
             logo = Image.merge('RGBA', (r, g, b, a))
             
             lw, lh = logo.size
@@ -69,14 +69,14 @@ class CameraMode:
             print(f"Could not load logo: {e}")
             try:
                 from PIL import ImageFont
-                font_logo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 60)
+                font_logo = ImageFont.truetype(theme.FONT_BOLD, 60)
                 draw.text((cx-20, cy-30), "E", fill=(255, 255, 255), font=font_logo)
             except:
                 pass
 
         # 2. Main Text (Massive, Professional font)
         try:
-            font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
+            font_text = ImageFont.truetype(theme.FONT_BOLD, 48)
             tw = draw.textlength(text, font=font_text) if hasattr(draw, "textlength") else len(text) * 25
             # Center the large text nicely
             draw.text(((w - tw) // 2, h // 2 + 20), text, fill=(255, 255, 255), font=font_text)
@@ -85,10 +85,10 @@ class CameraMode:
 
         # 3. Loading Scroll (Progress Bar) - Sleek and wide
         if progress > 0:
-            bw, bh = 280, 8
+            bw, bh = theme.PROGRESS_BAR_WIDTH, theme.PROGRESS_BAR_HEIGHT
             bx, by = (w - bw) // 2, h // 2 + 90
             draw.rectangle([bx, by, bx + bw, by + bh], outline=(80, 80, 100), width=1)
-            draw.rectangle([bx, by, bx + int(bw * progress), by + bh], fill=mauve)
+            draw.rectangle([bx, by, bx + int(bw * progress), by + bh], fill=theme.MAUVE_PRIMARY)
 
         display_to_map(np.array(img), fb_map)
 
