@@ -92,7 +92,7 @@ class CameraMode:
         self,
         pil_img: Image.Image,
         target_ratio: float = 1.5,
-        zoom: float = 1.6,
+        zoom: float = 1.0,
     ) -> Image.Image:
         """
         Centre-crop to *target_ratio* (3:2) and apply a *zoom* factor to
