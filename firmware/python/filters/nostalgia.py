@@ -1,4 +1,4 @@
-from PIL import ImageEnhance
+from PIL import Image, ImageEnhance
 
 def apply_nostalgia_filter(pil_img):
     """
