@@ -9,7 +9,7 @@ import subprocess
 from UI import ui_top, touch_interface
 
 # Filters
-from filters import italian_summer, bokeh, film35mm, uni, nostalgia, low_light
+from filters import italian_summer, bokeh, film35mm, uni, nostalgia, low_light, glam
 # Settings and Grids
 from settings import grid as grid_settings
 
@@ -171,10 +171,7 @@ class StandardMode(CameraMode):
         # Standard mode now relies on the global toggleable grid
         return frame
 
-class WideAngleMode(CameraMode):
-    def __init__(self):
-        super().__init__("Wide-angle")
-    # Wide-angle: do nothing as requested.
+
 
 class FilterMode(CameraMode):
     def __init__(self, name, filter_module):
@@ -367,7 +364,7 @@ def run(config=None):
     
     modes = [
         StandardMode(),
-        WideAngleMode(),
+        FilterMode("Glam", glam),
         LowLightMode(),
         FilterMode("Summer", italian_summer),
         FilterMode("Bokeh", bokeh),

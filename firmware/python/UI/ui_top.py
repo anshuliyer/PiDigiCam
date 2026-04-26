@@ -112,7 +112,7 @@ class TopPanel:
             selected_idx = self.config.get("menu_index", 0)
             title = "SYSTEM SETTINGS"
         elif current_submenu == "Modes":
-            items = ["Standard", "Wide-angle", "Low Light", "Summer", "Bokeh", "35mm", "UnI", "Nostalgia"]
+            items = ["Standard", "Glam", "Low Light", "Summer", "Bokeh", "35mm", "UnI", "Nostalgia"]
             selected_idx = self.config.get("submenu_index", 0)
             title = "SELECT VISION"
         elif current_submenu == "Grid":
