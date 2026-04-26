@@ -43,6 +43,7 @@ class CameraMode:
         """
         from UI.themes import chalk as theme
         
+        w, h = SCREEN_RES
         # Charcoal background instead of pure black
         img = Image.new("RGB", SCREEN_RES, theme.BG_CHARCOAL)
         draw = ImageDraw.Draw(img)

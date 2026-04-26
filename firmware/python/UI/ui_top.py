@@ -128,16 +128,13 @@ class TopPanel:
             selected_idx = 0
             title = "MENU"
 
-        # 1. Premium Glass Overlay
-        overlay_margin = 8
+        # 1. Solid Charcoal Background (Matching Capture Screen)
+        overlay_margin = 0 # Full screen menu
         
-        # Create a transparent overlay image
-        overlay = Image.new('RGBA', self.screen_res, (0, 0, 0, 0))
+        # Create a solid charcoal overlay image
+        bg_color = list(theme.BG_CHARCOAL) + [255] # Ensure solid alpha
+        overlay = Image.new('RGBA', self.screen_res, tuple(bg_color))
         overlay_draw = ImageDraw.Draw(overlay)
-        
-        # Deep translucent base matching theme
-        overlay_fill = theme.OVERLAY_FILL
-        overlay_draw.rectangle([overlay_margin, overlay_margin, w - overlay_margin, h - overlay_margin], fill=overlay_fill)
         
         # --- PASTE LOGO WATERMARK ---
         try:
