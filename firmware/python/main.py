@@ -152,17 +152,20 @@ class CameraMode:
             except Exception:
                 pass
 
-        # Main status text
+        # Main status text — small, centred
         try:
-            font_text = ImageFont.truetype(theme.FONT_BOLD, 48)
-            tw = (
-                draw.textlength(text, font=font_text)
-                if hasattr(draw, "textlength")
-                else len(text) * 25
-            )
-            draw.text(((w - tw) // 2, h // 2 + 20), text, fill=(255, 255, 255), font=font_text)
+            font_text = ImageFont.truetype(theme.FONT_BOLD, 22)
+            if hasattr(draw, "textbbox"):
+                bbox = draw.textbbox((0, 0), text, font=font_text)
+                tw = bbox[2] - bbox[0]
+                th = bbox[3] - bbox[1]
+            else:
+                tw, th = len(text) * 12, 22
+            tx = (w - tw) // 2
+            ty = h // 2 + 50 - th // 2
+            draw.text((tx, ty), text, fill=(255, 255, 255), font=font_text)
         except Exception:
-            draw.text((w // 2 - 80, h // 2 + 20), text, fill=(255, 255, 255))
+            draw.text((w // 2 - 40, h // 2 + 50), text, fill=(255, 255, 255))
 
         # Progress bar
         if progress > 0:
