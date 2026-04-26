@@ -45,11 +45,13 @@ class CameraMode:
         print(f"\n[SHUTTER] Capturing in {self.name} mode...")
         picam2.stop()
         config_still = picam2.create_still_configuration()
-        # Subtle Rustic Tuning
+        # Optimization: Faster shutter to prevent blur
         config_still["controls"] = {
             "Contrast": 1.03,
             "Brightness": 0.02,
-            "Sharpness": 1.1
+            "Sharpness": 1.1,
+            "AeExposureMode": 1,      # 1 = Sport/Short Exposure priority
+            "AnalogueGain": 2.0        # Higher gain to compensate for fast shutter
         }
         picam2.configure(config_still)
         picam2.start()
@@ -160,13 +162,13 @@ class LowLightMode(CameraMode):
         picam2.stop()
         config_still = picam2.create_still_configuration()
         
-        # Low Light Optimizations
+        # Low Light Optimizations - Sharpness priority
         config_still["controls"] = {
             "Contrast": 1.1,
-            "Sharpness": 3.0,          # High sharpness to recover detail
-            "NoiseReductionMode": 2,  # High quality noise reduction
-            "AeExposureMode": 1,      # Long exposure priority
-            "AnalogueGain": 4.0        # Force higher analog gain
+            "Sharpness": 3.0,
+            "NoiseReductionMode": 2,
+            "AeExposureMode": 1,      # Switch to Sport/Short for sharpness
+            "AnalogueGain": 6.0        # High gain to see in the dark without blur
         }
         
         picam2.configure(config_still)
