@@ -46,25 +46,27 @@ class CameraMode:
         draw = ImageDraw.Draw(img)
         mauve = (224, 176, 255)
         
-        # 1. EuclidCam Logo (Center-Top) - Geometric Triangle/Circle Design
+        # 1. EuclidCam Logo (Center-Top) - Using actual logo image
         cx, cy = w // 2, h // 2 - 40
-        draw.ellipse([cx-35, cy-35, cx+35, cy+35], outline=mauve, width=3)
-        
-        # Inscribed Triangle (Euclidian Geometry)
-        import math
-        pts = []
-        for i in range(3):
-            angle = math.radians(i * 120 - 90) # Start from top
-            pts.append((cx + 30 * math.cos(angle), cy + 30 * math.sin(angle)))
-        draw.polygon(pts, outline=mauve, width=2)
-        
-        # Stylized 'E'
         try:
-            from PIL import ImageFont
-            font_logo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 35)
-            draw.text((cx-12, cy-18), "E", fill=(255, 255, 255), font=font_logo)
-        except:
-            pass
+            # Path relative to where main.py is run from (firmware/python)
+            logo_path = os.path.join(os.path.dirname(__file__), "../../splashscreen/euclid_logo.jpeg")
+            logo = Image.open(logo_path).convert("RGBA") # Ensure it has alpha or can be pasted
+            # Resize logo (e.g., to 70x70)
+            logo.thumbnail((70, 70), Image.LANCZOS)
+            # Create a mask to make it circular if needed, or just paste it
+            # We'll just paste it centered
+            lw, lh = logo.size
+            img.paste(logo, (cx - lw // 2, cy - lh // 2))
+        except Exception as e:
+            # Fallback to simple text if logo not found
+            print(f"Could not load logo: {e}")
+            try:
+                from PIL import ImageFont
+                font_logo = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 35)
+                draw.text((cx-12, cy-18), "E", fill=(255, 255, 255), font=font_logo)
+            except:
+                pass
 
         # 2. Main Text
         try:
