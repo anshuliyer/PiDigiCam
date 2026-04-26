@@ -174,11 +174,11 @@ class TopPanel:
         overlay_draw.text(((w - title_w) // 2, 20), title, fill=(255, 255, 255), font=font_title)
         
         # Massive Cross Button (Top Right)
-        bx, by = w - 70, 10
-        overlay_draw.rectangle([bx, by, bx + 60, by + 60], outline=self.MAUVE, width=2)
+        bx, by = w - 60, 12
+        overlay_draw.rectangle([bx, by, bx + 40, by + 40], outline=self.MAUVE, width=2)
         # Draw a bold X
-        overlay_draw.line([bx + 15, by + 15, bx + 45, by + 45], fill=self.MAUVE, width=3)
-        overlay_draw.line([bx + 45, by + 15, bx + 15, by + 45], fill=self.MAUVE, width=3)
+        overlay_draw.line([bx + 10, by + 10, bx + 30, by + 30], fill=self.MAUVE, width=2)
+        overlay_draw.line([bx + 30, by + 10, bx + 10, by + 30], fill=self.MAUVE, width=2)
         
         # Separator Line
         overlay_draw.line([(25, header_h), (w - 25, header_h)], fill=(60, 60, 75), width=1)
@@ -320,17 +320,17 @@ class TopPanel:
             draw._image = img 
             self._draw_connection_overlay(draw)
         else:
-            x_base, y_base = self._calculate_base_pos()
-            y_row = y_base + 5
-            
-            self._draw_flash(draw, x_base, y_row)
-            self._draw_battery(draw, x_base, y_row)
-            self._draw_wifi(draw, x_base, y_row)
-            
-            self._draw_gear(draw)
-            self._draw_gallery_icon(draw)
-            
             if self.config.get("show_menu"):
                 self._draw_menu(draw)
+            else:
+                x_base, y_base = self._calculate_base_pos()
+                y_row = y_base + 5
+                
+                self._draw_flash(draw, x_base, y_row)
+                self._draw_battery(draw, x_base, y_row)
+                self._draw_wifi(draw, x_base, y_row)
+                
+                self._draw_gear(draw)
+                self._draw_gallery_icon(draw)
 
         return np.array(img)
