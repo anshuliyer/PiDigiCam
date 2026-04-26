@@ -738,9 +738,10 @@ def _build_default_config(argv: list[str]) -> dict:
 
 def run(config: dict | None = None) -> None:
     """Initialise and run the camera engine.  Called by camera.py."""
-    if config is None:
-        config = _build_default_config(sys.argv)
-    engine = CameraEngine(config)
+    defaults = _build_default_config(sys.argv)
+    if config:
+        defaults.update(config)
+    engine = CameraEngine(defaults)
     engine.run()
 
 
