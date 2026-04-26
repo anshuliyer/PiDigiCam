@@ -137,7 +137,7 @@ class TopPanel:
         # --- PASTE LOGO WATERMARK ---
         try:
             import os
-            logo_path = os.path.join(os.path.dirname(__file__), "../../splashscreen/transparent_logo.png")
+            logo_path = os.path.join(os.path.dirname(__file__), "../../../splashscreen/transparent_logo.png")
             logo = Image.open(logo_path).convert("RGBA")
             logo.thumbnail((250, 250), Image.LANCZOS)
             r, g, b, a = logo.split()
