@@ -56,9 +56,9 @@ class CameraMode:
             # Resize logo to be large and prominent
             logo.thumbnail((250, 250), Image.LANCZOS)
             
-            # Reduce opacity (make it highly transparent) to push it to the background
+            # Reduce opacity to 12% for a very subtle, professional watermark
             r, g, b, a = logo.split()
-            a = a.point(lambda i: i * 0.25) # 25% opacity
+            a = a.point(lambda i: i * 0.12)
             logo = Image.merge('RGBA', (r, g, b, a))
             
             lw, lh = logo.size
@@ -74,19 +74,20 @@ class CameraMode:
             except:
                 pass
 
-        # 2. Main Text (Larger font)
+        # 2. Main Text (Massive, Professional font)
         try:
-            font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 32)
-            tw = draw.textlength(text, font=font_text) if hasattr(draw, "textlength") else len(text) * 18
-            draw.text(((w - tw) // 2, h // 2 + 40), text, fill=(255, 255, 255), font=font_text)
+            font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
+            tw = draw.textlength(text, font=font_text) if hasattr(draw, "textlength") else len(text) * 25
+            # Center the large text nicely
+            draw.text(((w - tw) // 2, h // 2 + 20), text, fill=(255, 255, 255), font=font_text)
         except:
-            draw.text((w//2 - 60, h//2 + 40), text, fill=(255, 255, 255))
+            draw.text((w//2 - 80, h//2 + 20), text, fill=(255, 255, 255))
 
-        # 3. Loading Scroll (Progress Bar) - Shifted lower
+        # 3. Loading Scroll (Progress Bar) - Sleek and wide
         if progress > 0:
-            bw, bh = 240, 10
-            bx, by = (w - bw) // 2, h // 2 + 100
-            draw.rectangle([bx, by, bx + bw, by + bh], outline=(60, 60, 80), width=1)
+            bw, bh = 280, 8
+            bx, by = (w - bw) // 2, h // 2 + 90
+            draw.rectangle([bx, by, bx + bw, by + bh], outline=(80, 80, 100), width=1)
             draw.rectangle([bx, by, bx + int(bw * progress), by + bh], fill=mauve)
 
         display_to_map(np.array(img), fb_map)
