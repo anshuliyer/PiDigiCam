@@ -176,8 +176,8 @@ class TopPanel:
             bg_color = self.MAUVE if is_selected else (40, 40, 40)
             text_color = (0, 0, 0) if is_selected else (255, 255, 255)
             
-            # Draw the button with an 8px margin for better sensitivity
-            draw.rectangle([bx + 8, by + 8, bx + btn_w - 8, by + btn_h - 8], fill=bg_color, outline=(255, 255, 255) if is_selected else (100, 100, 100), width=2 if is_selected else 1)
+            # Draw the button with a 15px margin to prevent adjacent taps
+            draw.rectangle([bx + 15, by + 15, bx + btn_w - 15, by + btn_h - 15], fill=bg_color, outline=(255, 255, 255) if is_selected else (100, 100, 100), width=2 if is_selected else 1)
             
             # Item Text
             item_text = item

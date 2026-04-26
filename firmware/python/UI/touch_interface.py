@@ -47,14 +47,13 @@ class TouchInterface:
                     if event.code == ecodes.ABS_Y: self.last_y = event.value
                 elif event.type == ecodes.EV_KEY and event.code == ecodes.BTN_TOUCH:
                     if event.value == 1: # Touch start
-                        if not self.touch_active:
-                            self.touch_active = True
-                            cmd, x, y = self._map_to_command(self.last_x, self.last_y, ui_state)
-                            if cmd:
-                                print(f"[TOUCH] {cmd} at ({int(x)}, {int(y)})")
-                            return cmd
+                        self.touch_active = True
                     else: # Touch release
                         self.touch_active = False
+                        cmd, x, y = self._map_to_command(self.last_x, self.last_y, ui_state)
+                        if cmd:
+                            print(f"[TOUCH] {cmd} at ({int(x)}, {int(y)})")
+                        return cmd
         except Exception as e:
             pass
         return None
@@ -121,8 +120,8 @@ class TouchInterface:
                 btn_local_x = rel_x % btn_w
                 btn_local_y = rel_y % btn_h
                 
-                # Reduced dead-zone to 8px for higher sensitivity
-                if 8 < btn_local_x < btn_w - 8 and 8 < btn_local_y < btn_h - 8:
+                # Increased dead-zone to 15px to prevent adjacent merging
+                if 15 < btn_local_x < btn_w - 15 and 15 < btn_local_y < btn_h - 15:
                     idx = row * cols + col
                     if idx < max_items:
                         ui_state["touch_menu_idx"] = idx
