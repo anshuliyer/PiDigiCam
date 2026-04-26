@@ -85,8 +85,8 @@ class TouchInterface:
             # 1. Delete Button (Top Left)
             if x < 130 and y < 85: return "DOWN", x, y
             
-            # 2. Exit Gallery (Bottom Center Pill)
-            if y > h - 60: return "BACK", x, y
+            # 2. Exit Gallery (Top Right Cross - Matching Settings)
+            if x > w - 80 and y < 80: return "BACK", x, y
             
             # 3. Navigation (Sides)
             return ("LEFT" if x < w // 2 else "RIGHT"), x, y

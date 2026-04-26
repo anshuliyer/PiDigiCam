@@ -122,13 +122,18 @@ class TopPanel:
         rx, ry = w - 25, h // 2 + 20
         draw.polygon([(rx, ry), (rx - arrow_size, ry - arrow_size), (rx - arrow_size, ry + arrow_size)], fill=tuple(arrow_color))
         
-        # 3. Exit Hint (Bottom)
-        exit_text = "EXIT GALLERY"
-        tw = draw.textlength(exit_text, font=font_small) if hasattr(draw, "textlength") else len(exit_text) * 8
-        px, py = (w - (tw + 30)) // 2, h - 40
-        draw_func = getattr(draw, "rounded_rectangle", draw.rectangle)
-        draw_func([px, py, px + tw + 30, py + 28], radius=14, fill=(30, 30, 40, 150), outline=self.MAUVE, width=1)
-        draw.text((px + 15, py + 5), exit_text, fill=self.MAUVE, font=font_small)
+        # 3. Navigation Arrows
+        arrow_size = 25
+        arrow_color = list(self.MAUVE) + [180]
+        
+        # Left Arrow
+        lx, ly = 25, h // 2 + 20
+        draw.polygon([(lx, ly), (lx + arrow_size, ly - arrow_size), (lx + arrow_size, ly + arrow_size)], fill=tuple(arrow_color))
+        
+        # Right Arrow
+        rx, ry = w - 25, h // 2 + 20
+        draw.polygon([(rx, ry), (rx - arrow_size, ry - arrow_size), (rx - arrow_size, ry + arrow_size)], fill=tuple(arrow_color))
+
 
 
 
@@ -284,19 +289,20 @@ class TopPanel:
 
     def _draw_bin_icon(self, draw):
         """
-        Draws a fancy DELETE card in the top-left corner (matching Settings).
+        Draws a transparent DELETE card in the top-left corner.
         """
         bx, by = 15, 12
         btn_w, btn_h = 100, 40
         
-        # Fancy Card (Glass effect)
+        # Transparent Card (Outline only)
         draw_func = getattr(draw, "rounded_rectangle", draw.rectangle)
-        draw_func([bx, by, bx + btn_w, by + btn_h], radius=10, fill=(30, 30, 40, 150), outline=self.MAUVE, width=1)
+        draw_func([bx, by, bx + btn_w, by + btn_h], radius=10, fill=(0, 0, 0, 0), outline=self.MAUVE, width=1)
         
-        # Red Icon
+        # Neutral Icon (White/Grey)
         ix, iy = bx + 12, by + 10
-        draw.rectangle([ix, iy + 4, ix + 10, iy + 16], outline=(200, 50, 50), width=1)
-        draw.line([(ix - 2, iy + 4), (ix + 12, iy + 4)], fill=(200, 50, 50), width=2)
+        icon_color = (220, 220, 230)
+        draw.rectangle([ix, iy + 4, ix + 10, iy + 16], outline=icon_color, width=1)
+        draw.line([(ix - 2, iy + 4), (ix + 12, iy + 4)], fill=icon_color, width=2)
         
         from PIL import ImageFont
         try:
@@ -304,7 +310,8 @@ class TopPanel:
         except:
             font_btn = None
             
-        draw.text((bx + 35, by + 10), "DELETE", fill=(220, 220, 230), font=font_btn)
+        draw.text((bx + 35, by + 10), "DELETE", fill=icon_color, font=font_btn)
+
 
 
 
