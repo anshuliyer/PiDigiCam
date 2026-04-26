@@ -43,20 +43,32 @@ class CameraMode:
             os.makedirs(photo_dir, exist_ok=True)
             
         print(f"\n[SHUTTER] Capturing in {self.name} mode...")
+        
+        # 1. Visual Feedback: "STAY STILL"
+        w, h = SCREEN_RES
+        overlay = Image.new("RGB", SCREEN_RES, (0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        draw.text((w//2 - 60, h//2 - 10), "HOLD STILL...", fill=(255, 255, 255))
+        display_to_map(np.array(overlay), fb_map)
+        
         picam2.stop()
         config_still = picam2.create_still_configuration()
-        # Optimization: Faster shutter to prevent blur
+        # Optimization: Maximum speed shutter
         config_still["controls"] = {
-            "Contrast": 1.03,
-            "Brightness": 0.02,
-            "Sharpness": 1.1,
-            "AeExposureMode": 1,      # 1 = Sport/Short Exposure priority
-            "AnalogueGain": 2.0        # Higher gain to compensate for fast shutter
+            "Contrast": 1.05,
+            "Sharpness": 2.0,
+            "AeExposureMode": 1, 
+            "AnalogueGain": 4.0   # High gain for instant shutter
         }
         picam2.configure(config_still)
         picam2.start()
         
-        time.sleep(1)
+        time.sleep(0.4) # Faster settling
+        
+        # 2. Shutter Flash
+        flash = np.full((h, w, 3), 255, dtype=np.uint8)
+        display_to_map(flash, fb_map)
+        
         filename = os.path.join(photo_dir, f"{self.name.lower()}_{int(time.time())}.jpg")
         picam2.capture_file("temp.jpg")
         
@@ -67,7 +79,7 @@ class CameraMode:
         # Review
         review_img = processed_img.resize(SCREEN_RES, Image.LANCZOS)
         display_to_map(np.array(review_img), fb_map)
-        time.sleep(2.0)
+        time.sleep(1.5)
         
         picam2.stop()
         start_preview()
@@ -159,22 +171,35 @@ class LowLightMode(CameraMode):
             os.makedirs(photo_dir, exist_ok=True)
             
         print(f"\n[SHUTTER] Capturing in {self.name} mode...")
+        
+        # 1. Visual Feedback
+        w, h = SCREEN_RES
+        overlay = Image.new("RGB", SCREEN_RES, (0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        draw.text((w//2 - 60, h//2 - 10), "HOLD STILL...", fill=(255, 255, 255))
+        display_to_map(np.array(overlay), fb_map)
+        
         picam2.stop()
         config_still = picam2.create_still_configuration()
         
-        # Low Light Optimizations - Sharpness priority
+        # Low Light Optimizations - Maximum Sensitivity for speed
         config_still["controls"] = {
             "Contrast": 1.1,
             "Sharpness": 3.0,
             "NoiseReductionMode": 2,
-            "AeExposureMode": 1,      # Switch to Sport/Short for sharpness
-            "AnalogueGain": 6.0        # High gain to see in the dark without blur
+            "AeExposureMode": 1, 
+            "AnalogueGain": 8.0   # Extreme gain to force fast shutter
         }
         
         picam2.configure(config_still)
         picam2.start()
         
-        time.sleep(1.5) # Allow sensors to settle for longer in low light
+        time.sleep(0.5) 
+        
+        # 2. Shutter Flash
+        flash = np.full((h, w, 3), 255, dtype=np.uint8)
+        display_to_map(flash, fb_map)
+        
         filename = os.path.join(photo_dir, f"{self.name.lower().replace(' ', '_')}_{int(time.time())}.jpg")
         picam2.capture_file("temp.jpg")
         
@@ -185,7 +210,7 @@ class LowLightMode(CameraMode):
         # Review
         review_img = processed_img.resize(SCREEN_RES, Image.LANCZOS)
         display_to_map(np.array(review_img), fb_map)
-        time.sleep(2.0)
+        time.sleep(1.5)
         
         picam2.stop()
         start_preview()
