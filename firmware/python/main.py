@@ -9,7 +9,7 @@ import subprocess
 from UI import ui_top, touch_interface
 
 # Filters
-from filters import italian_summer, bokeh, kodak, cyberpunk, champagne, low_light
+from filters import italian_summer, bokeh, kodak, cyberpunk, nostalgia, low_light
 # Settings and Grids
 from settings import grid as grid_settings
 
@@ -280,7 +280,7 @@ def run(config=None):
         FilterMode("Bokeh", bokeh),
         FilterMode("Kodak", kodak),
         FilterMode("Cyberpunk", cyberpunk),
-        FilterMode("Champagne", champagne)
+        FilterMode("Nostalgia", nostalgia)
     ]
     config.setdefault("mode_idx", 0)
     config.setdefault("grid_mode", grid_settings.CompositionGrid.OFF)
